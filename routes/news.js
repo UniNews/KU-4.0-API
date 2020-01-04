@@ -10,5 +10,14 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: err.message })
     }
 })
+router.post('/', async (req,res) => {
+    try {
+        const news = new News(req.body)
+        news.save()
+        res.json(news)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
 
 module.exports = router 

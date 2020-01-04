@@ -3,7 +3,9 @@ require('dotenv').config();
 const express = require('express')
 const app = express()
 const newsRouter = require('./routes/news')
+const bodyParser = require('body-parser')
 
+app.use(bodyParser.json())
 app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
