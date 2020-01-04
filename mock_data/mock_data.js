@@ -4,7 +4,8 @@ const News = require('../models/news')
 var News1 = new News(
     { 
         title:'varit',
-        description:'assava'
+        description:'assava',
+        type:'club'
     }
 )
 News1.save(function (err, news) {
