@@ -13,6 +13,14 @@ const newsSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    name:{
+        type: String,
+        required: true
+    },
+    comments: {
+        type: Array,
+        required: true
+    },
     createdAt: {
         type: Date,
         required: true,
