@@ -1,5 +1,4 @@
 require('dotenv').config({ path: '../.env' })
-const mongoose = require("mongoose")
 const News = require('../models/news')
 const arr = [
     { 
@@ -7,6 +6,7 @@ const arr = [
         description: 'potential',
         type: 'club',
         name: 'CPE-KU',
+        views: 0,
         comments:[
             {
                 name: 'varit',
@@ -23,6 +23,7 @@ const arr = [
         description: 'potential',
         type: 'club',
         name: 'CPE-KU',
+        views: 0,
         comments:[
             {
                 name: 'varit',
@@ -35,6 +36,7 @@ const arr = [
         description: 'assava',
         type: 'general',
         name: 'CPE-KU',
+        views: 0,
         comments:[
             {
                 name: 'varit',
@@ -47,6 +49,7 @@ const arr = [
         description: 'assava',
         type: 'general',
         name: 'CPE-KU',
+        views: 0,
         comments:[
             {
                 name: 'varit',

@@ -31,7 +31,11 @@ router.post('/', async (req,res) => {
 
 router.get('/club', async (req, res) => {
     try {
-        const news = await News.find({ type: 'club' })
+        const news = await News.find(
+            { 
+                type: 'club' 
+            }
+        )
         res.json(news)
     } catch (err) {
         res.status(500).json(
@@ -59,12 +63,39 @@ router.get('/general', async (req, res) => {
     }
 })
 
+router.get('/:id', async (req,res) => {
+    try {
+        await News.updateOne(
+            { 
+                '_id': req.params.id 
+            },
+            { 
+                $inc: { 
+                    'views': 1
+                } 
+            }
+        )
+        const news = await News.findOne(
+            { 
+                _id: req.params.id
+            }
+        )
+        res.json(news)
+    } catch (err) {
+        res.status(500).json(
+            { 
+                message: err.message 
+            }
+        )
+    }
+})
+
 router.post('/:id/comments', async (req,res) => {
     try {
         console.log(req.body )
         await News.updateOne(
             { 
-                "_id": req.params.id 
+                '_id': req.params.id 
             },
             { 
                 $push: { 

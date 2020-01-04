@@ -21,6 +21,10 @@ const newsSchema = new mongoose.Schema({
         type: Array,
         required: true
     },
+    views: {
+        type: Number,
+        required: true
+    },
     createdAt: {
         type: Date,
         required: true,
