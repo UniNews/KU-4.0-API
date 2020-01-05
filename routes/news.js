@@ -68,12 +68,48 @@ router.get('/club', async (req, res) => {
     }
 })
 
-//get type general
-router.get('/general', async (req, res) => {
+//get type promotions
+router.get('/promotions', async (req, res) => {
     try {
         const news = await News.find(
             { 
-                'type': 'general' 
+                'type': 'promotions' 
+            }
+        )
+        res.json(news)
+    } catch (err) {
+        res.status(500).json(
+            { 
+                message: err.message 
+            }
+        )
+    }
+})
+
+//get type losts-founds
+router.get('/lost-founds', async (req, res) => {
+    try {
+        const news = await News.find(
+            { 
+                'type': 'lost-founds' 
+            }
+        )
+        res.json(news)
+    } catch (err) {
+        res.status(500).json(
+            { 
+                message: err.message 
+            }
+        )
+    }
+})
+
+//get type universities
+router.get('/universities', async (req, res) => {
+    try {
+        const news = await News.find(
+            { 
+                'type': 'universities' 
             }
         )
         res.json(news)

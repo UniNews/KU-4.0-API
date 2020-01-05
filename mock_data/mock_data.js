@@ -39,7 +39,7 @@ const arr = [
     { 
         title: 'varit',
         description: 'assava',
-        type: 'general',
+        type: 'universities',
         name: 'CPE-KU',
         views: 0,
         comments:[
@@ -53,7 +53,35 @@ const arr = [
     { 
         title: 'varit',
         description: 'assava',
-        type: 'general',
+        type: 'universities',
+        name: 'CPE-KU',
+        views: 0,
+        comments:[
+            {
+                id: uniqid(),
+                name: 'varit',
+                text: 'เอ๋อสัส'
+            }
+        ]
+    },
+    { 
+        title: 'varit',
+        description: 'assava',
+        type: 'promotions',
+        name: 'CPE-KU',
+        views: 0,
+        comments:[
+            {
+                id: uniqid(),
+                name: 'varit',
+                text: 'เอ๋อสัส'
+            }
+        ]
+    },
+    { 
+        title: 'varit',
+        description: 'assava',
+        type: 'lost-founds',
         name: 'CPE-KU',
         views: 0,
         comments:[
