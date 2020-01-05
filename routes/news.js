@@ -1,7 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const News = require('../models/news')
+const uniqid = require('uniqid')
 
+//get all news
 router.get('/', async (req, res) => {
     try {
         const news = await News.find()
@@ -15,6 +17,25 @@ router.get('/', async (req, res) => {
     }
 })
 
+//delete news by id
+router.delete('/:id', async (req, res) => {
+    try {
+        const news = await News.deleteOne(
+            {
+                '_id': req.params.id
+            }
+        )
+        res.json(news)
+    } catch (err) {
+        res.status(500).json(
+            { 
+                message: err.message 
+            }
+        )
+    }
+})
+
+//post news
 router.post('/', async (req,res) => {
     try {
         const news = new News(req.body)
@@ -29,11 +50,12 @@ router.post('/', async (req,res) => {
     }
 })
 
+//get type club
 router.get('/club', async (req, res) => {
     try {
         const news = await News.find(
             { 
-                type: 'club' 
+                'type': 'club' 
             }
         )
         res.json(news)
@@ -46,11 +68,12 @@ router.get('/club', async (req, res) => {
     }
 })
 
+//get type general
 router.get('/general', async (req, res) => {
     try {
         const news = await News.find(
             { 
-                type: 'general' 
+                'type': 'general' 
             }
         )
         res.json(news)
@@ -63,6 +86,7 @@ router.get('/general', async (req, res) => {
     }
 })
 
+//get by news id
 router.get('/:id', async (req,res) => {
     try {
         await News.updateOne(
@@ -77,7 +101,7 @@ router.get('/:id', async (req,res) => {
         )
         const news = await News.findOne(
             { 
-                _id: req.params.id
+                '_id': req.params.id
             }
         )
         res.json(news)
@@ -90,9 +114,9 @@ router.get('/:id', async (req,res) => {
     }
 })
 
+//comment to post
 router.post('/:id/comments', async (req,res) => {
     try {
-        console.log(req.body )
         await News.updateOne(
             { 
                 '_id': req.params.id 
@@ -100,8 +124,9 @@ router.post('/:id/comments', async (req,res) => {
             { 
                 $push: { 
                     'comments': {
-                        name: req.body.name,
-                        text: req.body.text
+                        'id': uniqid(),
+                        'name': req.body.name,
+                        'text': req.body.text
                     } 
                 } 
             }, 
@@ -112,6 +137,35 @@ router.post('/:id/comments', async (req,res) => {
         res.json(
             {
                 message: 'add comment success'
+            }
+        )
+    }catch (err) {
+        res.status(500).json(
+            { 
+                message: err.message 
+            }
+        )
+    }
+})
+
+//delete comments
+router.delete('/:id/comments/:cid', async (req,res) => {
+    try {
+            await News.updateOne(
+            { 
+                '_id': req.params.id 
+            },
+            { 
+                $pull: { 
+                    'comments': {
+                        'id': req.params.cid,
+                    } 
+                } 
+            }
+        )
+        res.json(
+            {
+                message: 'delete comment success'
             }
         )
     }catch (err) {
