@@ -1,7 +1,6 @@
 const mongoose = require("mongoose")
-const DEFAULT_URL = "localhost:7000"
-const dbPath = process.env.MONGODB_URL || DEFAULT_URL
-mongoose.connect(dbPath, {
+const { MONGODB_URL } = require('./environments');
+mongoose.connect(MONGODB_URL, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
 });
