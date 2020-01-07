@@ -1,16 +1,15 @@
-require('dotenv').config({ path: '../.env' })
 const News = require('../models/news')
 const uniqid = require('uniqid')
 
 const arr = [
-    { 
+    {
         title: 'jamie',
         description: 'potential',
         type: 'club',
         name: 'CPE-KU',
         views: 0,
-        comments:[
-            {   
+        comments: [
+            {
                 id: uniqid(),
                 name: 'varit',
                 text: 'เอ๋อสัส'
@@ -22,27 +21,13 @@ const arr = [
             }
         ]
     },
-    { 
+    {
         title: 'jamie',
         description: 'potential',
         type: 'club',
         name: 'CPE-KU',
         views: 0,
-        comments:[
-            {   
-                id: uniqid(),
-                name: 'varit',
-                text: 'เอ๋อสัส'
-            }
-        ]
-    },
-    { 
-        title: 'varit',
-        description: 'assava',
-        type: 'universities',
-        name: 'CPE-KU',
-        views: 0,
-        comments:[
+        comments: [
             {
                 id: uniqid(),
                 name: 'varit',
@@ -50,13 +35,13 @@ const arr = [
             }
         ]
     },
-    { 
+    {
         title: 'varit',
         description: 'assava',
         type: 'universities',
         name: 'CPE-KU',
         views: 0,
-        comments:[
+        comments: [
             {
                 id: uniqid(),
                 name: 'varit',
@@ -64,13 +49,27 @@ const arr = [
             }
         ]
     },
-    { 
+    {
+        title: 'varit',
+        description: 'assava',
+        type: 'universities',
+        name: 'CPE-KU',
+        views: 0,
+        comments: [
+            {
+                id: uniqid(),
+                name: 'varit',
+                text: 'เอ๋อสัส'
+            }
+        ]
+    },
+    {
         title: 'varit',
         description: 'assava',
         type: 'promotions',
         name: 'CPE-KU',
         views: 0,
-        comments:[
+        comments: [
             {
                 id: uniqid(),
                 name: 'varit',
@@ -78,13 +77,13 @@ const arr = [
             }
         ]
     },
-    { 
+    {
         title: 'varit',
         description: 'assava',
         type: 'lost-founds',
         name: 'CPE-KU',
         views: 0,
-        comments:[
+        comments: [
             {
                 id: uniqid(),
                 name: 'varit',
