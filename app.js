@@ -110,6 +110,6 @@ app.post("/admin-token", function (req, res) {
         res.status(500).end()
     }
 })
-
+console.log(SERVER_PORT)
 app.use('/news', newsRouter)
 app.listen(SERVER_PORT)

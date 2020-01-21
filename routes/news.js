@@ -6,7 +6,7 @@ const checkToken = require('../middlewares/checkToken')
 const User = require('../models/user')
 
 //get all news
-router.get('/', checkToken, (req, res) => {
+router.get('/', async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -216,6 +216,55 @@ router.delete('/:id/comments/:cid', async (req, res) => {
                 message: 'delete comment success'
             }
         )
+    } catch (err) {
+        res.status(500).json(
+            {
+                message: err.message
+            }
+        )
+    }
+})
+
+//like-comments
+router.post('/:id/like/:cid', async (req, res) => {
+        try {
+            const checkUser = await News.findOne({"comments.like": req.body.username })
+            if(checkUser===null) {
+                await News.updateOne(
+                    {
+                        '_id': req.params.id,
+                        'comments.id':req.params.cid
+                    },
+                    {
+                        $push: {
+                            'comments.$.like': req.body.username
+                        }
+                    }
+                )
+                res.json(
+                    {
+                        message: 'add like success'
+                    }
+                )
+            }
+            else {
+                await News.updateOne(
+                    {
+                        '_id': req.params.id,
+                        'comments.id':req.params.cid
+                    },
+                    {
+                        $pull: {
+                            'comments.$.like': req.body.username
+                        }
+                    }
+                )
+                res.json(
+                    {
+                        message: 'add like success'
+                    }
+                )
+            }
     } catch (err) {
         res.status(500).json(
             {
