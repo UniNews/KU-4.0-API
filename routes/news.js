@@ -4,9 +4,10 @@ const News = require('../models/news')
 const uniqid = require('uniqid')
 const checkToken = require('../middlewares/checkToken')
 const User = require('../models/user')
+const Report = require('../models/report')
 
 //get all news
-router.get('/', async (req, res) => {
+router.get('/', checkToken, (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -228,7 +229,7 @@ router.delete('/:id/comments/:cid', async (req, res) => {
 //like-comments
 router.post('/:id/like/:cid', async (req, res) => {
         try {
-            const checkUser = await News.findOne({"comments.like": req.body.username })
+            const checkUser = await News.findOne({"comments.like": req.body.uid })
             if(checkUser===null) {
                 await News.updateOne(
                     {
@@ -237,7 +238,7 @@ router.post('/:id/like/:cid', async (req, res) => {
                     },
                     {
                         $push: {
-                            'comments.$.like': req.body.username
+                            'comments.$.like': req.body.uid
                         }
                     }
                 )
@@ -255,7 +256,7 @@ router.post('/:id/like/:cid', async (req, res) => {
                     },
                     {
                         $pull: {
-                            'comments.$.like': req.body.username
+                            'comments.$.like': req.body.uid
                         }
                     }
                 )
@@ -265,6 +266,26 @@ router.post('/:id/like/:cid', async (req, res) => {
                     }
                 )
             }
+    } catch (err) {
+        res.status(500).json(
+            {
+                message: err.message
+            }
+        )
+    }
+})
+
+//report-comments
+router.post('/:id/report/:cid', async (req, res) => {
+    try {
+        let data = []
+        data.cid = req.params.cid
+        data.newsid = req.params.id
+        data.uid = req.body.uid
+        data.message = req.body.message
+        const report = new Report(data)
+        report.save()
+        res.json(report)
     } catch (err) {
         res.status(500).json(
             {
