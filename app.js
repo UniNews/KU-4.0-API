@@ -4,7 +4,6 @@ const newsRouter = require('./routes/news')
 const bodyParser = require('body-parser')
 const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs/environments')
 const User = require('./models/user')
-const Admin = require('./models/admin')
 const jwt = require("jsonwebtoken")
 
 app.use(bodyParser.json())
@@ -77,10 +76,11 @@ app.post("/admin-token", function (req, res) {
         return
     }
     try {
-        Admin.findOne({ username }, function (err, user) {
+        User.findOne({ username }, function (err, user) {
+            console.log(user,'pss')
             if (err)
                 throw err
-            if (!user)
+            if (!user || !user.accessType)
                 res.status(400).json({ error: "invalid_client" })
             else
                 user.comparePassword(password, function (err, isMatch) {
@@ -101,8 +101,10 @@ app.post("/admin-token", function (req, res) {
                             id_token: idToken
                         })
                     }
-                    else
+                    else{
+                        console.log('paul')
                         res.status(400).json({ error: "invalid_client" })
+                    }
                 })
         })
     }

@@ -13,7 +13,7 @@ const newsSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    name:{
+    uid:{
         type: String,
         required: true
     },

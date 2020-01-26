@@ -15,6 +15,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    accessType: {
+        type: String,
+        required: false
+    },
+    avatarURl: {
+        type: String,
+        required: true,
+        default: 'https://discovery-park.co.uk/wp-content/uploads/2017/06/avatar-default.png'
+    }
 })
 
 userSchema.pre('save', function (next) {
