@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs/environments')
 const User = require('./models/user')
 const jwt = require("jsonwebtoken")
+const checkToken = require('./middlewares/checkToken')
 
 app.use(bodyParser.json())
 app.use(function (req, res, next) {
@@ -14,6 +15,28 @@ app.use(function (req, res, next) {
         res.setHeader("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"))
     res.setHeader("Access-Control-Expose-Headers", "Location")
     next()
+})
+
+app.get("/users", checkToken, function (req, res){
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user || user.accessType!=='admin')
+                res.status(401).end()
+            else {
+                const data = await User.find()
+                res.status(200).json(data)
+            }
+        })
+    }catch (err) {
+        res.status(500).end()
+    }
 })
 
 app.post("/token", function (req, res) {
