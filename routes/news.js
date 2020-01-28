@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const News = require('../models/news')
-const uniqid = require('uniqid')
-const checkToken = require('../middlewares/checkToken')
 const User = require('../models/user')
+const Comment = require('../models/comments')
 const Report = require('../models/report')
+const mongoose = require('mongoose')
 
 //get all news
-router.get('/' , checkToken,(req, res) => {
+router.get('/' ,(req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -21,23 +21,18 @@ router.get('/' , checkToken,(req, res) => {
             if (!user)
                 res.status(401).end()
             else {
-                const news = await News.find()
-                        for (const eachNews of news) {
-                            const uid = eachNews.uid
-                            const newsPost =await User.findOne({'_id':uid})
-                            data.push({
-                                "_id": eachNews._id,
-                                "title": eachNews.title,
-                                "description": eachNews.description,
-                                "type": eachNews.type,
-                                "views": eachNews.views,
-                                "imageURl": eachNews.imageURl,
-                                "createAt": eachNews.createAt,
-                                "username" : newsPost.username,
-                                "displayName": newsPost.displayName,
-                                "avatarURl": newsPost.avatarURl
-                            })
-                        }
+                const news = await News.find().populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments'
+                    }
+                )
                 res.status(200).json(news)
             }
         })
@@ -48,7 +43,7 @@ router.get('/' , checkToken,(req, res) => {
 })
 
 //delete news by id
-router.delete('/:id',checkToken ,async (req, res) => {
+router.delete('/:id' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -74,7 +69,7 @@ router.delete('/:id',checkToken ,async (req, res) => {
                             '_id': req.params.id
                         }
                     )
-                    if(news.uid === userId) {
+                    if(news.user._id.toString() === userId) {
                         const deleteNews = await News.deleteOne(
                             {
                                 '_id': req.params.id
@@ -97,7 +92,7 @@ router.delete('/:id',checkToken ,async (req, res) => {
 })
 
 //post news
-router.post('/' ,checkToken ,async (req, res) => {
+router.post('/' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -112,7 +107,7 @@ router.post('/' ,checkToken ,async (req, res) => {
             else {
                 let data = {
                     ...req.body,
-                    uid: userId
+                    user: userId
                 }
                 const news = new News(data)
                 news.save()
@@ -129,7 +124,7 @@ router.post('/' ,checkToken ,async (req, res) => {
 })
 
 //get type club news
-router.get('/club' ,checkToken ,async (req, res) => {
+router.get('/club' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -137,7 +132,6 @@ router.get('/club' ,checkToken ,async (req, res) => {
     }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
-            let data = []
             if (err)
                 throw err
             if (!user)
@@ -147,23 +141,18 @@ router.get('/club' ,checkToken ,async (req, res) => {
                     {
                         'type': 'club'
                     }
+                ).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments'
+                    }
                 )
-                for (const eachNews of news) {
-                    const uid = eachNews.uid
-                    const newsPost = await User.findOne({'_id':uid})
-                    data.push({
-                        "_id": eachNews._id,
-                        "title": eachNews.title,
-                        "description": eachNews.description,
-                        "type": eachNews.type,
-                        "views": eachNews.views,
-                        "imageURl": eachNews.imageURl,
-                        "createAt": eachNews.createAt,
-                        "username" : newsPost.username,
-                        "displayName": newsPost.displayName,
-                        "avatarURl": newsPost.avatarURl
-                    })
-                }
                 res.status(200).json(news)
             }
         })
@@ -174,7 +163,7 @@ router.get('/club' ,checkToken ,async (req, res) => {
 })
 
 //get type promotions news
-router.get('/promotions' ,checkToken ,async (req, res) => {
+router.get('/promotions' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -182,7 +171,6 @@ router.get('/promotions' ,checkToken ,async (req, res) => {
     }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
-            let data = []
             if (err)
                 throw err
             if (!user)
@@ -192,23 +180,18 @@ router.get('/promotions' ,checkToken ,async (req, res) => {
                     {
                         'type': 'promotions'
                     }
+                ).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments'
+                    }
                 )
-                for (const eachNews of news) {
-                    const uid = eachNews.uid
-                    const newsPost = await User.findOne({'_id':uid})
-                    data.push({
-                        "_id": eachNews._id,
-                        "title": eachNews.title,
-                        "description": eachNews.description,
-                        "type": eachNews.type,
-                        "views": eachNews.views,
-                        "imageURl": eachNews.imageURl,
-                        "createAt": eachNews.createAt,
-                        "username" : newsPost.username,
-                        "displayName": newsPost.displayName,
-                        "avatarURl": newsPost.avatarURl
-                    })
-                }
                 res.status(200).json(news)
             }
         })
@@ -219,7 +202,7 @@ router.get('/promotions' ,checkToken ,async (req, res) => {
 })
 
 //get type losts-founds
-router.get('/lost-founds' ,checkToken , async (req, res) => {
+router.get('/lost-founds' , async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -227,7 +210,6 @@ router.get('/lost-founds' ,checkToken , async (req, res) => {
     }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
-            let data = []
             if (err)
                 throw err
             if (!user)
@@ -237,23 +219,18 @@ router.get('/lost-founds' ,checkToken , async (req, res) => {
                     {
                         'type': 'lost-founds'
                     }
+                ).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments'
+                    }
                 )
-                for (const eachNews of news) {
-                    const uid = eachNews.uid
-                    const newsPost = await User.findOne({'_id':uid})
-                    data.push({
-                        "_id": eachNews._id,
-                        "title": eachNews.title,
-                        "description": eachNews.description,
-                        "type": eachNews.type,
-                        "views": eachNews.views,
-                        "imageURl": eachNews.imageURl,
-                        "createAt": eachNews.createAt,
-                        "username" : newsPost.username,
-                        "displayName": newsPost.displayName,
-                        "avatarURl": newsPost.avatarURl
-                    })
-                }
                 res.status(200).json(news)
             }
         })
@@ -264,7 +241,7 @@ router.get('/lost-founds' ,checkToken , async (req, res) => {
 })
 
 //get type universities
-router.get('/universities' ,checkToken , async (req, res) => {
+router.get('/universities' , async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -272,7 +249,6 @@ router.get('/universities' ,checkToken , async (req, res) => {
     }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
-            let data = []
             if (err)
                 throw err
             if (!user)
@@ -282,23 +258,18 @@ router.get('/universities' ,checkToken , async (req, res) => {
                     {
                         'type': 'universities'
                     }
+                ).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments'
+                    }
                 )
-                for (const eachNews of news) {
-                    const uid = eachNews.uid
-                    const newsPost = await User.findOne({'_id':uid})
-                    data.push({
-                        "_id": eachNews._id,
-                        "title": eachNews.title,
-                        "description": eachNews.description,
-                        "type": eachNews.type,
-                        "views": eachNews.views,
-                        "imageURl": eachNews.imageURl,
-                        "createAt": eachNews.createAt,
-                        "username" : newsPost.username,
-                        "displayName": newsPost.displayName,
-                        "avatarURl": newsPost.avatarURl
-                    })
-                }
                 res.status(200).json(news)
             }
         })
@@ -309,15 +280,13 @@ router.get('/universities' ,checkToken , async (req, res) => {
 })
 
 //get by news id
-router.get('/:id' ,checkToken , async (req, res) => {
+router.get('/:id' , async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
         return
     }
     try {
-        let data = []
-        let result = {}
         User.findOne({ _id: userId }, async function (err, user) {
             if (err)
                 throw err
@@ -338,36 +307,34 @@ router.get('/:id' ,checkToken , async (req, res) => {
                     {
                         '_id': req.params.id
                     }
-                )
-                const userPost = await User.findOne( 
+                ).populate(
                     {
-                        '_id': news.uid
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments',
+                        populate: {
+                            path: 'like',
+                            model: 'User',
+                            select:'-password'
+                        }
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments',
+                        populate: {
+                            path: 'user',
+                            model: 'User',
+                            select:'-password'
+                        }
                     }
                 )
-                for (const eachComment of news.comments) {
-                    const userComment = await User.findOne({'_id':eachComment.uid})
-                    data.push({
-                        ...eachComment,
-                        'username': userComment.username,
-                        'displayName': userComment.displayName,
-                        'avatarURl': userComment.avatarURl
-                    }
-                    )
-                }
-                result = {
-                    "comments": data,
-                    "_id": news._id,
-                    "title": news.title,
-                    "description": news.description,
-                    "type": news.type,
-                    "views": news.views,
-                    "imageURl": news.imageURl,
-                    "createAt": news.createAt,
-                    "username" : userPost.username,
-                    "displayName": userPost.displayName,
-                    "avatarURl": userPost.avatarURl
-                }
-                res.json(result)
+                res.json(news)
             }
         })
     }
@@ -377,7 +344,7 @@ router.get('/:id' ,checkToken , async (req, res) => {
 })
 
 //comment to post
-router.post('/:id/comments' ,checkToken , async (req, res) => {
+router.post('/:id/comments' , async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -390,28 +357,35 @@ router.post('/:id/comments' ,checkToken , async (req, res) => {
             if (!user)
                 res.status(401).end()
             else {
-                await News.updateOne(
+                const data = new Comment(
                     {
-                        '_id': req.params.id
-                    },
-                    {
-                        $push: {
-                            'comments': {
-                                'id': uniqid(),
-                                'uid': userId,
-                                'text': req.body.text
+                        text: req.body.text,
+                        user: mongoose.Types.ObjectId(userId),
+                        like: []
+                    }
+                )
+                await data.save(async function (err, comment) {
+                    if (err) throw err;
+                    const cid=mongoose.Types.ObjectId(comment._id)
+                    await News.updateOne(
+                        {
+                            '_id': req.params.id
+                        },
+                        {
+                            $push: {
+                                'comments': cid
                             }
+                        },
+                        {
+                            upsert: true
                         }
-                    },
-                    {
-                        upsert: true
-                    }
-                )
-                res.json(
-                    {
-                        message: 'add comment success'
-                    }
-                )
+                    )
+                    res.json(
+                        {
+                            message: 'add comment success'
+                        }
+                    )
+                })
             }
         })
     }
@@ -425,8 +399,9 @@ router.post('/:id/comments' ,checkToken , async (req, res) => {
 })
 
 //delete comments
-router.delete('/:id/comments/:cid' ,checkToken ,async (req, res) => {
+router.delete('/:id/comments/:cid' ,async (req, res) => {
     const userId = req.userId
+    const cid = mongoose.Types.ObjectId(req.params.cid)
     if (userId == null) {
         res.status(401).end()
         return
@@ -445,10 +420,13 @@ router.delete('/:id/comments/:cid' ,checkToken ,async (req, res) => {
                         },
                         {
                             $pull: {
-                                'comments': {
-                                    'id': req.params.cid,
-                                }
+                                'comments': cid
                             }
+                        }
+                    )
+                    await Comment.deleteOne(
+                        {
+                            '_id':cid
                         }
                     )
                     res.json(
@@ -457,8 +435,18 @@ router.delete('/:id/comments/:cid' ,checkToken ,async (req, res) => {
                         }
                     )
                 } else {
-                    const news = await News.findOne({_id: req.params.id})
-                    const postMatch = news.comments.find(comment => comment.uid===userId)
+                    const news = await News.findOne({_id: req.params.id}).populate(
+                        {
+                            path:'comments',
+                            model: 'Comments',
+                            populate: {
+                                path: 'like',
+                                model: 'User',
+                                select:'-password'
+                            }
+                        }
+                    )
+                    const postMatch = news.comments.find(comment => comment.user._id.toString()===userId)
                     if(postMatch) {
                         await News.updateOne(
                             {
@@ -466,10 +454,13 @@ router.delete('/:id/comments/:cid' ,checkToken ,async (req, res) => {
                             },
                             {
                                 $pull: {
-                                    'comments': {
-                                        'id': req.params.cid,
-                                    }
+                                    'comments': cid
                                 }
+                            }
+                        )
+                        await Comment.deleteOne(
+                            {
+                                '_id':cid
                             }
                         )
                         res.json(
@@ -493,7 +484,7 @@ router.delete('/:id/comments/:cid' ,checkToken ,async (req, res) => {
 })
 
 //like-comments
-router.post('/:id/like/:cid' ,checkToken ,async (req, res) => {
+router.post('/:cid/like/' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -506,43 +497,53 @@ router.post('/:id/like/:cid' ,checkToken ,async (req, res) => {
             if (!user)
                 res.status(401).end()
             else {
-                const checkUser = await News.findOne({"comments.like": userId })
-                if(checkUser===null) {
-                    await News.updateOne(
-                        {
-                            '_id': req.params.id,
-                            'comments.id':req.params.cid
-                        },
-                        {
-                            $push: {
-                                'comments.$.like': userId
+                const cmValid = await Comment.findOne(
+                    {
+                        '_id': req.params.cid
+                    }
+                )
+                const checkUser = await Comment.findOne(
+                    {
+                        "like": userId 
+                    }
+                )
+                if( cmValid !== null )
+                    if( checkUser === null ) {
+                        await Comment.updateOne(
+                            {
+                                '_id': req.params.cid,
+                            },
+                            {
+                                $push: {
+                                    'like': userId
+                                }
                             }
-                        }
-                    )
-                    res.json(
-                        {
-                            message: 'add like success'
-                        }
-                    )
-                }
-                else {
-                    await News.updateOne(
-                        {
-                            '_id': req.params.id,
-                            'comments.id':req.params.cid
-                        },
-                        {
-                            $pull: {
-                                'comments.$.like': userId
+                        )
+                        res.json(
+                            {
+                                message: 'add like success'
                             }
-                        }
-                    )
-                    res.json(
-                        {
-                            message: 'unlike success'
-                        }
-                    )
-                }
+                        )
+                    }
+                    else {
+                        await Comment.updateOne(
+                            {
+                                '_id': req.params.cid,
+                            },
+                            {
+                                $pull: {
+                                    'like': userId
+                                }
+                            }
+                        )
+                        res.json(
+                            {
+                                message: 'unlike success'
+                            }
+                        )
+                    }
+                else
+                    res.status(401).end()
             }
         })
     } catch (err) {
@@ -555,7 +556,7 @@ router.post('/:id/like/:cid' ,checkToken ,async (req, res) => {
 })
 
 //report-comments
-router.post('/:id/report/:cid', checkToken, async (req, res) => {
+router.post('/:id/report/:cid' , async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -568,11 +569,12 @@ router.post('/:id/report/:cid', checkToken, async (req, res) => {
             if (!user)
                 res.status(401).end()
             else {
-                let data = []
-                data.cid = req.params.cid
-                data.newsid = req.params.id
-                data.uid = userId
-                data.message = req.body.message
+                let data = {
+                    user: mongoose.Types.ObjectId(userId),
+                    comment: mongoose.Types.ObjectId(req.params.cid),
+                    news: mongoose.Types.ObjectId(req.params.id),
+                    message: req.body.message
+                }
                 const report = new Report(data)
                 report.save()
                 res.json(report)

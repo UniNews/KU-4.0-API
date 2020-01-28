@@ -136,5 +136,5 @@ app.post("/admin-token", function (req, res) {
     }
 })
 console.log(SERVER_PORT)
-app.use('/news', newsRouter)
+app.use('/news',checkToken ,newsRouter)
 app.listen(SERVER_PORT)

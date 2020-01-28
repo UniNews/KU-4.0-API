@@ -1,17 +1,20 @@
 const mongoose = require("../configs/database");
 
 const reportSchema = new mongoose.Schema({
-    uid: {
-        type: String,
-        required: true
+    user: { 
+        type: mongoose.Schema.ObjectId, 
+        ref: 'User', 
+        required: true 
     },
-    cid: {
-        type: String,
-        required: true
+    comment: { 
+        type: mongoose.Schema.ObjectId, 
+        ref: 'Comments', 
+        required: true 
     },
-    newsid: {
-        type: String,
-        required: true
+    news: { 
+        type: mongoose.Schema.ObjectId, 
+        ref: 'newsCollection', 
+        required: true 
     },
     message:{
         type: String,

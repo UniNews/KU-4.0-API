@@ -1,5 +1,5 @@
 const mongoose = require("../configs/database");
-
+const Comment = require('./comments');
 const newsSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -13,13 +13,10 @@ const newsSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    uid:{
-        type: String,
-        required: true
-    },
-    comments: {
-        type: Array,
-        required: true
+    user: { 
+        type: mongoose.Schema.ObjectId, 
+        ref: 'User', 
+        required: true 
     },
     views: {
         type: Number,
@@ -33,7 +30,13 @@ const newsSchema = new mongoose.Schema({
     imageURL: {
         type: String,
         required: true
-    }
+    },
+    comments: [
+        { 
+            type: mongoose.Schema.ObjectId, 
+            ref: Comment
+        }
+    ]
 })
 
 module.exports = mongoose.model('News', newsSchema,'newsCollection')
