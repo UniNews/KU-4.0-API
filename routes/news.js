@@ -15,7 +15,6 @@ router.get('/' ,(req, res) => {
     }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
-            let data = []
             if (err)
                 throw err
             if (!user)
@@ -39,6 +38,69 @@ router.get('/' ,(req, res) => {
     }
     catch (err) {
         res.status(500).end()
+    }
+})
+
+//modify news
+router.put('/:id' ,async (req, res) => {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId } ,async function (err, user) {
+            if (err)
+                throw err
+            if (!user || !user.accessType)
+                res.status(401).end()
+            else {
+                const oldNews = await News.findOne({
+                    _id: req.params.id 
+                })
+                if(user.accessType==='admin') {
+                    const news = await News.updateOne(
+                        { 
+                            _id: req.params.id 
+                        },
+                        { 
+                            $set: {
+                                title: req.body.title || oldNews.title,
+                                description: req.body.description || oldNews.description,
+                                type: req.body.type || oldNews.type,
+                                imageURL: req.body.imageURL || oldNews.imageURL
+                            }
+                        }
+                    )
+                    res.json(news)
+                } else {
+                    if(oldNews.user._id.toString() === userId) {
+                        const news = await News.updateOne(
+                            { 
+                                _id: req.params.id 
+                            },
+                            { 
+                                $set: {
+                                    title: req.body.title || oldNews.title,
+                                    description: req.body.description || oldNews.description,
+                                    type: req.body.type || oldNews.type,
+                                    imageURL: req.body.imageURL || oldNews.imageURL
+                                }
+                            }
+                        )
+                        res.json(news)
+                    } else {
+                        res.status(401).end()
+                    }
+                }
+            }
+        })
+    } catch (err) {
+        res.status(500).json(
+            {
+                message: err.message
+            }
+        )
     }
 })
 
@@ -366,7 +428,7 @@ router.post('/:id/comments' , async (req, res) => {
                 )
                 await data.save(async function (err, comment) {
                     if (err) throw err;
-                    const cid=mongoose.Types.ObjectId(comment._id)
+                    const cid = mongoose.Types.ObjectId(comment._id)
                     await News.updateOne(
                         {
                             '_id': req.params.id
