@@ -28,7 +28,7 @@ const newsSchema = new mongoose.Schema({
         default: Date.now
     },
     imageURL: {
-        type: String,
+        type: Array,
         required: true
     },
     comments: [

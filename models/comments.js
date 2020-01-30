@@ -15,7 +15,12 @@ const commentsSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId, 
             ref: 'User' 
         }
-    ]
+    ],
+    createdAt: {
+        type: Date,
+        required: true,
+        default: Date.now
+    }
 })
 
 module.exports = mongoose.model('Comments', commentsSchema)

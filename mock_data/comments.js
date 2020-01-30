@@ -3,19 +3,19 @@ const mongoose = require('mongoose')
 
 const arr = [
     {
-        text: "เอ๋อสัส",
-        user: mongoose.Types.ObjectId('5e2da6d4fc633f58c9c91426'),
+        text: "ที่สุดเลยเว่ยแก",
+        user: mongoose.Types.ObjectId('5e32a25f3e65ba7204144325'),
         like: [
-            mongoose.Types.ObjectId('5e2da6d4fc633f58c9c91426'),
-            mongoose.Types.ObjectId('5e2da6d4fc633f58c9c91427')
+            mongoose.Types.ObjectId('5e32a25f3e65ba7204144325'),
+            mongoose.Types.ObjectId('5e32a25f3e65ba7204144324')
         ]
     },
     {
-        text: "โพเทนเชี่ย",
-        user: mongoose.Types.ObjectId('5e2da6d4fc633f58c9c91426'),
+        text: "น่าสนใจ",
+        user: mongoose.Types.ObjectId('5e32a25f3e65ba7204144323'),
         like: [
-            mongoose.Types.ObjectId('5e2da6d4fc633f58c9c91426'),
-            mongoose.Types.ObjectId('5e2da6d4fc633f58c9c91427')
+            mongoose.Types.ObjectId('5e32a25f3e65ba7204144324'),
+            mongoose.Types.ObjectId('5e32a25f3e65ba7204144323')
         ]
     }
 ]

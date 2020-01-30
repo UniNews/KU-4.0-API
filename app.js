@@ -100,7 +100,6 @@ app.post("/admin-token", function (req, res) {
     }
     try {
         User.findOne({ username }, function (err, user) {
-            console.log(user,'pss')
             if (err)
                 throw err
             if (!user || !user.accessType)
