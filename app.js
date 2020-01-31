@@ -12,8 +12,7 @@ app.use(bodyParser.json())
 app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
-    if (req.header("Access-Control-Request-Headers"))
-        res.setHeader("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"))
+    res.setHeader("Access-Control-Allow-Headers", "*")
     res.setHeader("Access-Control-Expose-Headers", "Location")
     next()
 })
@@ -102,7 +101,7 @@ app.post("/admin-token", function (req, res) {
                             id_token: idToken
                         })
                     }
-                    else{
+                    else {
                         console.log('paul')
                         res.status(400).json({ error: "invalid_client" })
                     }
@@ -114,6 +113,6 @@ app.post("/admin-token", function (req, res) {
     }
 })
 console.log(SERVER_PORT)
-app.use('/news',checkToken ,newsRouter)
-app.use('/users',checkToken,usersRouter)
+app.use('/news', checkToken, newsRouter)
+app.use('/users', checkToken, usersRouter)
 app.listen(SERVER_PORT)
