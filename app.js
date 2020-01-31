@@ -9,6 +9,9 @@ const jwt = require("jsonwebtoken")
 const checkToken = require('./middlewares/checkToken')
 
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+    extended: false
+}))
 app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
