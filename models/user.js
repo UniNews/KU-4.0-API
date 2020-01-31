@@ -94,6 +94,7 @@ userSchema.pre('save', function (next) {
 
 userSchema.pre('updateOne', function (next) {
     var user = this._update.$set
+    if (!user.password) return next()
     bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
         if (err)
             return next(err)

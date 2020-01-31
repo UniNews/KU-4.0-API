@@ -167,13 +167,23 @@ router.post('/' ,async (req, res) => {
             if (!user || !user.accessType)
                 res.status(401).end()
             else {
-                let data = {
-                    ...req.body,
-                    user: userId
+                if(req.body.title && req.body.description && req.body.type) {
+                    let data = {
+                        title: req.body.title,
+                        description: req.body.description,
+                        type: req.body.type,
+                        views: 0,
+                        imageURL: req.body.imageURL || [],
+                        user: mongoose.Types.ObjectId(userId)
+                    }
+                    const news = new News(data)
+                    news.save()
+                    res.json(news)
+                } else {
+                    res.json({
+                        message:'field mismatch'
+                    })
                 }
-                const news = new News(data)
-                news.save()
-                res.json(news)
             }
         })
     } catch (err) {
