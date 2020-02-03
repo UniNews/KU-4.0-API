@@ -33,10 +33,12 @@ app.get("/profile",checkToken , function(req,res) {
                         _id:userId
                     }).populate({
                         path:'following',
-                        model: 'User'
+                        model: 'User',
+                        select:'-password'
                     }).populate({
                         path:'follower',
-                        model: 'User'
+                        model: 'User',
+                        select:'-password'
                     })
                     res.status(200).json(result)
                 }
