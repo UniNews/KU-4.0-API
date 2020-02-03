@@ -7,18 +7,20 @@ const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs
 const User = require('./models/user')
 const jwt = require("jsonwebtoken")
 const checkToken = require('./middlewares/checkToken')
+const cors = require('cors')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: false
 }))
-app.use(function (req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*")
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
-    res.setHeader("Access-Control-Allow-Headers", "*")
-    res.setHeader("Access-Control-Expose-Headers", "Location")
-    next()
-})
+// app.use(function (req, res, next) {
+//     res.setHeader("Access-Control-Allow-Origin", "*")
+//     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
+//     res.setHeader("Access-Control-Allow-Headers", "*")
+//     res.setHeader("Access-Control-Expose-Headers", "Location")
+//     next()
+// })
+app.use(cors)
 
 app.post("/token", function (req, res) {
     const grant_type = req.body.grant_type
