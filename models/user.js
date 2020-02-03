@@ -92,19 +92,25 @@ userSchema.pre('save', function (next) {
     })
 })
 
-userSchema.pre('updateOne', function (next) {
-    var user = this._update.$set
-    if (!user.password) return next()
-    bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
-        if (err)
-            return next(err)
-        bcrypt.hash(user.password, salt, function (err, hash) {
-            if (err) return next(err)
-            user.password = hash
-            next()
-        })
-    })
-})
+// userSchema.pre('updateOne', function (next) {
+//     var user = this._update.$set
+//     try{
+//         console.log(user.password)
+//         if (!user.password) return next()
+//         console.log(user.password,'sss')
+//         bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
+//             if (err)
+//                 return next(err)
+//             bcrypt.hash(user.password, salt, function (err, hash) {
+//                 if (err) return next(err)
+//                 user.password = hash
+//                 next()
+//             })
+//         })
+//     }catch (error){
+//         return next()
+//     }
+// })
 
 userSchema.methods.comparePassword = function (candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {

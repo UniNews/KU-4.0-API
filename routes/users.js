@@ -142,8 +142,6 @@ router.put('/:id' ,async (req, res) => {
                         },
                         { 
                             $set: {
-                                username: req.body.username || oldUser.username,
-                                password: req.body.password || oldUser.password,
                                 displayName: req.body.displayName || oldUser.displayName,
                                 accessType: req.body.accessType || oldUser.accessType,
                                 avatarURl: req.body.avatarURl || oldUser.avatarURl,
@@ -169,8 +167,6 @@ router.put('/:id' ,async (req, res) => {
                             },
                             { 
                                 $set: {
-                                    username: req.body.username || oldUser.username,
-                                    password: req.body.password || oldUser.password,
                                     displayName: req.body.displayName || oldUser.displayName,
                                     accessType: req.body.accessType || oldUser.accessType,
                                     avatarURl: req.body.avatarURl || oldUser.avatarURl,
