@@ -13,14 +13,32 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: false
 }))
-// app.use(function (req, res, next) {
-//     res.setHeader("Access-Control-Allow-Origin", "*")
-//     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
-//     res.setHeader("Access-Control-Allow-Headers", "*")
-//     res.setHeader("Access-Control-Expose-Headers", "Location")
-//     next()
-// })
+
 app.use(cors())
+
+app.get("/profile",checkToken , function(req,res) {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+                if (err)
+                    throw err
+                if (!user)
+                    res.status(401).end()
+                else {
+                    const result = await User.findOne({
+                        _id:userId
+                    })
+                    res.status(200).json(result)
+                }
+            })
+    }catch (err) {
+        res.status(500).end()
+    }
+})
 
 app.post("/token", function (req, res) {
     const grant_type = req.body.grant_type
