@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({
 //     res.setHeader("Access-Control-Expose-Headers", "Location")
 //     next()
 // })
-app.use(cors)
+app.use(cors())
 
 app.post("/token", function (req, res) {
     const grant_type = req.body.grant_type
