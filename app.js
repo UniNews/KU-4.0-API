@@ -31,6 +31,12 @@ app.get("/profile",checkToken , function(req,res) {
                 else {
                     const result = await User.findOne({
                         _id:userId
+                    }).populate({
+                        path:'following',
+                        model: 'User'
+                    }).populate({
+                        path:'follower',
+                        model: 'User'
                     })
                     res.status(200).json(result)
                 }
