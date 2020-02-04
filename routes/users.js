@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const User = require('../models/user')
+const News = require('../models/news')
 const mongoose = require('mongoose')
 
 router.get("/", function (req, res){
@@ -39,6 +40,28 @@ router.get("/:id", function (req, res){
                 res.status(401).end()
             else {
                 const data = await User.findOne({_id:req.params.id},{password:0})
+                res.status(200).json(data)
+            }
+        })
+    }catch (err) {
+        res.status(500).end()
+    }
+})
+
+router.get("/:id/news", function (req, res){
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const data = await News.find({user:req.params.id})
                 res.status(200).json(data)
             }
         })
