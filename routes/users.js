@@ -36,7 +36,7 @@ router.get("/:id", function (req, res){
         User.findOne({ _id: userId }, async function (err, user) {
             if (err)
                 throw err
-            if (!user || user.accessType!=='admin')
+            if (!user)
                 res.status(401).end()
             else {
                 const data = await User.findOne({_id:req.params.id},{password:0})
