@@ -16,7 +16,29 @@ router.get("/", function (req, res){
             if (!user || user.accessType!=='admin')
                 res.status(401).end()
             else {
-                const data = await User.find()
+                const data = await User.find({},{password:0})
+                res.status(200).json(data)
+            }
+        })
+    }catch (err) {
+        res.status(500).end()
+    }
+})
+
+router.get("/:id", function (req, res){
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user || user.accessType!=='admin')
+                res.status(401).end()
+            else {
+                const data = await User.findOne({_id:req.params.id},{password:0})
                 res.status(200).json(data)
             }
         })
