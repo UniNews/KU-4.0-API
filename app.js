@@ -6,6 +6,7 @@ const communitiesRouter = require('./routes/community')
 const bodyParser = require('body-parser')
 const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs/environments')
 const User = require('./models/user')
+const News = require('./models/news')
 const jwt = require("jsonwebtoken")
 const checkToken = require('./middlewares/checkToken')
 const cors = require('cors')
@@ -41,7 +42,26 @@ app.get("/profile",checkToken , function(req,res) {
                         model: 'User',
                         select:'-password'
                     })
-                    res.status(200).json(result)
+                    const news = await News.find(
+                        {
+                            user: 
+                            {
+                                _id:userId
+                            }
+                        }
+                    ).populate(
+                        {
+                            path: 'user',
+                            model: 'User',
+                            select:'-password'
+                        }
+                    ).populate(
+                        {
+                            path:'comments',
+                            model: 'Comments'
+                        }
+                    )
+                    res.status(200).json({result,news})
                 }
             })
     }catch (err) {
@@ -163,6 +183,28 @@ app.post("/register", function(req, res) {
         res.status(500).end()
     }
 })
+
+app.post("/registerByEmail", function(req, res) {
+    try{
+        const data = {
+            username:req.body.username,
+            password:req.body.password,
+            displayName: req.body.displayName,
+            email: req.body.email,
+            follower: [],
+            following: [],
+            loginType: 'email'
+        }
+        const newUser = new User(
+            data
+        )
+        newUser.save()
+        res.status(200).json(newUser)
+    }catch (err) {
+        res.status(500).end()
+    }
+})
+
 console.log(SERVER_PORT)
 app.use('/news', checkToken, newsRouter)
 app.use('/users', checkToken, usersRouter)
