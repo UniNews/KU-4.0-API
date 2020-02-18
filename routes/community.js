@@ -6,8 +6,8 @@ const Comment = require('../models/comments')
 const Report = require('../models/report')
 const mongoose = require('mongoose')
 
-//get all communities
-router.get('/' ,(req, res) => {
+//get latest communities
+router.get('/latest' ,(req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -31,7 +31,42 @@ router.get('/' ,(req, res) => {
                         path:'comments',
                         model: 'Comments'
                     }
-                )
+                ).sort( { 'createdAt': -1 } )
+                res.status(200).json(comunities)
+            }
+        })
+    }
+    catch (err) {
+        res.status(500).end()
+    }
+})
+
+//get all communities
+router.get('/hottest' ,(req, res) => {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const comunities = await Community.find().populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments'
+                    }
+                ).sort( { 'like': -1 } )
                 res.status(200).json(comunities)
             }
         })
