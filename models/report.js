@@ -1,5 +1,5 @@
 const mongoose = require("../configs/database");
-
+const Community = require('./community');
 const reportSchema = new mongoose.Schema({
     user: { 
         type: mongoose.Schema.ObjectId, 
@@ -14,7 +14,7 @@ const reportSchema = new mongoose.Schema({
     news: { 
         type: mongoose.Schema.ObjectId, 
         ref: 'newsCollection', 
-        required: true 
+        required: false
     },
     message:{
         type: String,
@@ -24,6 +24,11 @@ const reportSchema = new mongoose.Schema({
         type: Date,
         required: true,
         default: Date.now
+    },
+    community: {
+        type: mongoose.Schema.ObjectId, 
+        ref: Community, 
+        required: false
     }
 })
 

@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const News = require('../models/news')
 const User = require('../models/user')
+const Community = require('../models/community')
 const Comment = require('../models/comments')
 const Report = require('../models/report')
 const mongoose = require('mongoose')
 
-//get all news
+//get all communities
 router.get('/' ,(req, res) => {
     const userId = req.userId
     if (userId == null) {
@@ -20,7 +20,7 @@ router.get('/' ,(req, res) => {
             if (!user)
                 res.status(401).end()
             else {
-                const news = await News.find().populate(
+                const comunities = await Community.find().populate(
                     {
                         path: 'user',
                         model: 'User',
@@ -32,7 +32,7 @@ router.get('/' ,(req, res) => {
                         model: 'Comments'
                     }
                 )
-                res.status(200).json(news)
+                res.status(200).json(comunities)
             }
         })
     }
@@ -41,7 +41,7 @@ router.get('/' ,(req, res) => {
     }
 })
 
-//modify news
+//modify Community
 router.put('/:id' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
@@ -52,43 +52,37 @@ router.put('/:id' ,async (req, res) => {
         User.findOne({ _id: userId } ,async function (err, user) {
             if (err)
                 throw err
-            if (!user || !user.accessType)
+            if (!user)
                 res.status(401).end()
             else {
-                const oldNews = await News.findOne({
+                const oldComunities = await Community.findOne({
                     _id: req.params.id 
                 })
                 if(user.accessType==='admin') {
-                    const news = await News.updateOne(
+                    const communities = await Community.updateOne(
                         { 
                             _id: req.params.id 
                         },
                         { 
                             $set: {
-                                title: req.body.title || oldNews.title,
-                                description: req.body.description || oldNews.description,
-                                type: req.body.type || oldNews.type,
-                                imageURL: req.body.imageURL || oldNews.imageURL
+                                description: req.body.description || oldComunities.description,
                             }
                         }
                     )
-                    res.json(news)
+                    res.json(communities)
                 } else {
-                    if(oldNews.user._id.toString() === userId) {
-                        const news = await News.updateOne(
+                    if(oldComunities.user._id.toString() === userId) {
+                        const communities = await Community.updateOne(
                             { 
                                 _id: req.params.id 
                             },
                             { 
                                 $set: {
-                                    title: req.body.title || oldNews.title,
-                                    description: req.body.description || oldNews.description,
-                                    type: req.body.type || oldNews.type,
-                                    imageURL: req.body.imageURL || oldNews.imageURL
+                                    description: req.body.description || oldComunities.description,
                                 }
                             }
                         )
-                        res.json(news)
+                        res.json(communities)
                     } else {
                         res.status(401).end()
                     }
@@ -104,7 +98,7 @@ router.put('/:id' ,async (req, res) => {
     }
 })
 
-//delete news by id
+//delete communities by id
 router.delete('/:id' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
@@ -115,29 +109,29 @@ router.delete('/:id' ,async (req, res) => {
         User.findOne({ _id: userId } ,async function (err, user) {
             if (err)
                 throw err
-            if (!user || !user.accessType)
+            if (!user)
                 res.status(401).end()
             else {
                 if(user.accessType==='admin') {
-                    const news = await News.deleteOne(
+                    const communities = await Community.deleteOne(
                         {
                             '_id': req.params.id
                         }
                     )
-                    res.json(news)
+                    res.json(communities)
                 } else {
-                    const news = await News.findOne(
+                    const communities = await Community.findOne(
                         {
                             '_id': req.params.id
                         }
                     )
-                    if(news.user._id.toString() === userId) {
-                        const deleteNews = await News.deleteOne(
+                    if(communities.user._id.toString() === userId) {
+                        const deleteComunities = await Community.deleteOne(
                             {
                                 '_id': req.params.id
                             }
                         )
-                        res.json(deleteNews)
+                        res.json(deleteComunities)
                     } else {
                         res.status(401).end()
                     }
@@ -153,7 +147,7 @@ router.delete('/:id' ,async (req, res) => {
     }
 })
 
-//post news
+//post community
 router.post('/' ,async (req, res) => {
     const userId = req.userId
     if (userId == null) {
@@ -164,21 +158,17 @@ router.post('/' ,async (req, res) => {
         User.findOne({ _id: userId }, async function (err, user) {
             if (err)
                 throw err
-            if (!user || !user.accessType)
+            if (!user)
                 res.status(401).end()
             else {
-                if(req.body.title && req.body.description && req.body.type) {
+                if(req.body.description) {
                     let data = {
-                        title: req.body.title,
                         description: req.body.description,
-                        type: req.body.type,
-                        views: 0,
-                        imageURL: req.body.imageURL || [],
                         user: mongoose.Types.ObjectId(userId)
                     }
-                    const news = new News(data)
-                    news.save()
-                    res.json(news)
+                    const communities = new Community(data)
+                    communities.save()
+                    res.json(communities)
                 } else {
                     res.json({
                         message:'field mismatch'
@@ -195,163 +185,7 @@ router.post('/' ,async (req, res) => {
     }
 })
 
-//get type club news
-router.get('/club' ,async (req, res) => {
-    const userId = req.userId
-    if (userId == null) {
-        res.status(401).end()
-        return
-    }
-    try {
-        User.findOne({ _id: userId }, async function (err, user) {
-            if (err)
-                throw err
-            if (!user)
-                res.status(401).end()
-            else {
-                const news = await News.find(
-                    {
-                        'type': 'club'
-                    }
-                ).populate(
-                    {
-                        path: 'user',
-                        model: 'User',
-                        select:'-password'
-                    }
-                ).populate(
-                    {
-                        path:'comments',
-                        model: 'Comments'
-                    }
-                )
-                res.status(200).json(news)
-            }
-        })
-    }
-    catch (err) {
-        res.status(500).end()
-    }
-})
-
-//get type promotions news
-router.get('/promotions' ,async (req, res) => {
-    const userId = req.userId
-    if (userId == null) {
-        res.status(401).end()
-        return
-    }
-    try {
-        User.findOne({ _id: userId }, async function (err, user) {
-            if (err)
-                throw err
-            if (!user)
-                res.status(401).end()
-            else {
-                const news = await News.find(
-                    {
-                        'type': 'promotions'
-                    }
-                ).populate(
-                    {
-                        path: 'user',
-                        model: 'User',
-                        select:'-password'
-                    }
-                ).populate(
-                    {
-                        path:'comments',
-                        model: 'Comments'
-                    }
-                )
-                res.status(200).json(news)
-            }
-        })
-    }
-    catch (err) {
-        res.status(500).end()
-    }
-})
-
-//get type losts-founds
-router.get('/lost-founds' , async (req, res) => {
-    const userId = req.userId
-    if (userId == null) {
-        res.status(401).end()
-        return
-    }
-    try {
-        User.findOne({ _id: userId }, async function (err, user) {
-            if (err)
-                throw err
-            if (!user)
-                res.status(401).end()
-            else {
-                const news = await News.find(
-                    {
-                        'type': 'lost-founds'
-                    }
-                ).populate(
-                    {
-                        path: 'user',
-                        model: 'User',
-                        select:'-password'
-                    }
-                ).populate(
-                    {
-                        path:'comments',
-                        model: 'Comments'
-                    }
-                )
-                res.status(200).json(news)
-            }
-        })
-    }
-    catch (err) {
-        res.status(500).end()
-    }
-})
-
-//get type universities
-router.get('/universities' , async (req, res) => {
-    const userId = req.userId
-    if (userId == null) {
-        res.status(401).end()
-        return
-    }
-    try {
-        User.findOne({ _id: userId }, async function (err, user) {
-            if (err)
-                throw err
-            if (!user)
-                res.status(401).end()
-            else {
-                const news = await News.find(
-                    {
-                        'type': 'universities'
-                    }
-                ).populate(
-                    {
-                        path: 'user',
-                        model: 'User',
-                        select:'-password'
-                    }
-                ).populate(
-                    {
-                        path:'comments',
-                        model: 'Comments'
-                    }
-                )
-                res.status(200).json(news)
-            }
-        })
-    }
-    catch (err) {
-        res.status(500).end()
-    }
-})
-
-//get by news id
+//get by Community id
 router.get('/:id' , async (req, res) => {
     const userId = req.userId
     if (userId == null) {
@@ -365,17 +199,7 @@ router.get('/:id' , async (req, res) => {
             if (!user)
                 res.status(401).end()
             else {
-                await News.updateOne(
-                    {
-                        '_id': req.params.id
-                    },
-                    {
-                        $inc: {
-                            'views': 1
-                        }
-                    }
-                )
-                const news = await News.findOne(
+                const communities = await Community.findOne(
                     {
                         '_id': req.params.id
                     }
@@ -406,7 +230,7 @@ router.get('/:id' , async (req, res) => {
                         }
                     }
                 )
-                res.json(news)
+                res.json(communities)
             }
         })
     }
@@ -439,7 +263,7 @@ router.post('/:id/comments' , async (req, res) => {
                 await data.save(async function (err, comment) {
                     if (err) throw err;
                     const cid = mongoose.Types.ObjectId(comment._id)
-                    await News.updateOne(
+                    await Community.updateOne(
                         {
                             '_id': req.params.id
                         },
@@ -486,7 +310,7 @@ router.delete('/:id/comments/:cid' ,async (req, res) => {
                 res.status(401).end()
             else {
                 if(user.accessType === 'admin') {
-                    await News.updateOne(
+                    await Community.updateOne(
                         {
                             '_id': req.params.id
                         },
@@ -507,7 +331,7 @@ router.delete('/:id/comments/:cid' ,async (req, res) => {
                         }
                     )
                 } else {
-                    const news = await News.findOne({_id: req.params.id}).populate(
+                    const communities = await Community.findOne({_id: req.params.id}).populate(
                         {
                             path:'comments',
                             model: 'Comments',
@@ -518,9 +342,9 @@ router.delete('/:id/comments/:cid' ,async (req, res) => {
                             }
                         }
                     )
-                    const postMatch = news.comments.find(comment => comment.user._id.toString()===userId)
+                    const postMatch = communities.comments.find(comment => comment.user._id.toString()===userId)
                     if(postMatch) {
-                        await News.updateOne(
+                        await Community.updateOne(
                             {
                                 '_id': req.params.id
                             },
@@ -642,15 +466,89 @@ router.post('/:id/report/:cid' , async (req, res) => {
             if (!user)
                 res.status(401).end()
             else {
+                console.log('s')
                 let data = {
                     user: mongoose.Types.ObjectId(userId),
                     comment: mongoose.Types.ObjectId(req.params.cid),
-                    news: mongoose.Types.ObjectId(req.params.id),
+                    community: mongoose.Types.ObjectId(req.params.id),
                     message: req.body.message
                 }
                 const report = new Report(data)
                 report.save()
                 res.json(report)
+            }
+        })
+    } catch (err) {
+        res.status(500).json(
+            {
+                message: err.message
+            }
+        )
+    }
+})
+
+//like-community
+router.post('/:id/like-community' ,async (req, res) => {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const cmValid = await Community.findOne(
+                    {
+                        '_id': req.params.id
+                    }
+                )
+                const checkUser = await Community.findOne(
+                    {
+                        '_id': req.params.id,
+                        "like": userId 
+                    }
+                )
+                if( cmValid !== null )
+                    if( checkUser === null ) {
+                        await Community.updateOne(
+                            {
+                                '_id': req.params.id,
+                            },
+                            {
+                                $push: {
+                                    'like': userId
+                                }
+                            }
+                        )
+                        res.json(
+                            {
+                                message: 'add like success'
+                            }
+                        )
+                    }
+                    else {
+                        await Community.updateOne(
+                            {
+                                '_id': req.params.id,
+                            },
+                            {
+                                $pull: {
+                                    'like': userId
+                                }
+                            }
+                        )
+                        res.json(
+                            {
+                                message: 'unlike success'
+                            }
+                        )
+                    }
+                else
+                    res.status(401).end()
             }
         })
     } catch (err) {

@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const newsRouter = require('./routes/news')
 const usersRouter = require('./routes/users')
+const communitiesRouter = require('./routes/community')
 const bodyParser = require('body-parser')
 const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs/environments')
 const User = require('./models/user')
@@ -143,7 +144,27 @@ app.post("/admin-token", function (req, res) {
         res.status(500).end()
     }
 })
+
+app.post("/register", function(req, res) {
+    try{
+        const data = {
+            displayName: req.body.displayName,
+            email: req.body.email,
+            follower: [],
+            following: [],
+            loginType: req.body.loginType
+        }
+        const newUser = new User(
+            data
+        )
+        newUser.save()
+        res.status(200).json(newUser)
+    }catch (err) {
+        res.status(500).end()
+    }
+})
 console.log(SERVER_PORT)
 app.use('/news', checkToken, newsRouter)
 app.use('/users', checkToken, usersRouter)
+app.use('/communities', checkToken, communitiesRouter)
 app.listen(SERVER_PORT)

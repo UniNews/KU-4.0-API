@@ -5,11 +5,11 @@ const SALT_WORK_FACTOR = 10
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: true,
+        required: false,
     },
     password: {
         type: String,
-        required: true
+        required: false
     },
     displayName: {
         type: String,
@@ -73,6 +73,10 @@ const userSchema = new mongoose.Schema({
         required: false
     },
     fbPage: {
+        type: String,
+        required: false
+    },
+    loginType: {
         type: String,
         required: false
     }
