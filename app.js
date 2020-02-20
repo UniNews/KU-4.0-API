@@ -7,6 +7,7 @@ const bodyParser = require('body-parser')
 const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs/environments')
 const User = require('./models/user')
 const News = require('./models/news')
+const Community = require('./models/community')
 const jwt = require("jsonwebtoken")
 const checkToken = require('./middlewares/checkToken')
 const cors = require('cors')
@@ -17,6 +18,57 @@ app.use(bodyParser.urlencoded({
 }))
 
 app.use(cors())
+
+app.get("/profile/me",checkToken , function(req,res) {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+                if (err)
+                    throw err
+                if (!user)
+                    res.status(401).end()
+                else {
+                    const result = await User.findOne({
+                        _id:userId
+                    }).populate({
+                        path:'following',
+                        model: 'User',
+                        select:'-password'
+                    }).populate({
+                        path:'follower',
+                        model: 'User',
+                        select:'-password'
+                    })
+                    const communities = await Community.find(
+                        {
+                            user: 
+                            {
+                                _id:userId
+                            }
+                        }
+                    ).populate(
+                        {
+                            path: 'user',
+                            model: 'User',
+                            select:'-password'
+                        }
+                    ).populate(
+                        {
+                            path:'comments',
+                            model: 'Comments'
+                        }
+                    )
+                    res.status(200).json({result,communities})
+                }
+            })
+    }catch (err) {
+        res.status(500).end()
+    }
+})
 
 app.get("/profile",checkToken , function(req,res) {
     const userId = req.userId
