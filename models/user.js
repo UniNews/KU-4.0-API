@@ -79,6 +79,10 @@ const userSchema = new mongoose.Schema({
     loginType: {
         type: String,
         required: false
+    },
+    collectedId: {
+        type: String,
+        required: false
     }
 })
 

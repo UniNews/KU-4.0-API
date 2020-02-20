@@ -217,41 +217,64 @@ app.post("/admin-token", function (req, res) {
     }
 })
 
-app.post("/register", function(req, res) {
+app.post("/register", async(req, res)=> {
     try{
-        const data = {
-            displayName: req.body.displayName,
-            email: req.body.email,
-            follower: [],
-            following: [],
-            loginType: req.body.loginType
+        const validUser = await User.findOne({
+            collectedId: req.body.collectedId
+        })
+        const validUserEmail = await User.findOne({
+            email: req.body.email
+        })
+        if(!validUser && !validUserEmail) {
+            const data = {
+                displayName: req.body.displayName,
+                email: req.body.email,
+                follower: [],
+                following: [],
+                loginType: req.body.loginType,
+                collectedId: req.body.collectedId
+            }
+            const newUser = new User(
+                data
+            )
+            newUser.save()
+            res.status(200).json(newUser)
+        } else {
+            res.status(204).end()
         }
-        const newUser = new User(
-            data
-        )
-        newUser.save()
-        res.status(200).json(newUser)
     }catch (err) {
+        console.log(err)
         res.status(500).end()
     }
 })
 
-app.post("/registerByEmail", function(req, res) {
+app.post("/registerByEmail", async(req, res)=> {
     try{
-        const data = {
-            username:req.body.username,
-            password:req.body.password,
-            displayName: req.body.displayName,
-            email: req.body.email,
-            follower: [],
-            following: [],
-            loginType: 'email'
+        const validUserEmail = await User.findOne({
+            email: req.body.email
+        })
+        const validUsername = await User.findOne({
+            username: req.body.username
+        })
+        console.log(!validUserEmail && !validUsername)
+        if(!validUserEmail && !validUsername) {
+            const data = {
+                username:req.body.username,
+                password:req.body.password,
+                displayName: req.body.displayName,
+                email: req.body.email,
+                follower: [],
+                following: [],
+                loginType: 'email'
+            }
+            const newUser = new User(
+                data
+            )
+            newUser.save()
+            res.status(200).json(newUser)
+        }else {
+            res.status(204).json({message: 'duplicate'})
         }
-        const newUser = new User(
-            data
-        )
-        newUser.save()
-        res.status(200).json(newUser)
     }catch (err) {
         res.status(500).end()
     }
