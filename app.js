@@ -256,7 +256,6 @@ app.post("/registerByEmail", async(req, res)=> {
         const validUsername = await User.findOne({
             username: req.body.username
         })
-        console.log(!validUserEmail && !validUsername)
         if(!validUserEmail && !validUsername) {
             const data = {
                 username:req.body.username,
