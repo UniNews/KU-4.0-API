@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const User = require('../models/user')
 const News = require('../models/news')
+const Community = require('../models/community')
 const mongoose = require('mongoose')
 
 router.get("/", function (req, res){
@@ -40,7 +41,8 @@ router.get("/:id", function (req, res){
                 res.status(401).end()
             else {
                 const data = await User.findOne({_id:req.params.id},{password:0})
-                res.status(200).json(data)
+                const news = await News.find({user:req.params.id})
+                res.status(200).json({data,news})
             }
         })
     }catch (err) {
@@ -48,7 +50,7 @@ router.get("/:id", function (req, res){
     }
 })
 
-router.get("/:id/news", function (req, res){
+router.get("/:id/normal", function (req, res){
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -61,8 +63,9 @@ router.get("/:id/news", function (req, res){
             if (!user)
                 res.status(401).end()
             else {
-                const data = await News.find({user:req.params.id})
-                res.status(200).json(data)
+                const data = await User.findOne({_id:req.params.id},{password:0})
+                const communities = await Community.find({user:req.params.id})
+                res.status(200).json({data,communities})
             }
         })
     }catch (err) {
