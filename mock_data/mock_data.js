@@ -37,7 +37,7 @@ const arr = [
         imageURL: [
             'https://scontent.fbkk22-2.fna.fbcdn.net/v/t1.0-9/85200045_3374082342608177_8375273694208983040_o.jpg?_nc_cat=109&_nc_ohc=zIerAyrDPrcAX8PhpZq&_nc_ht=scontent.fbkk22-2.fna&oh=99a64ffe24ce7912ad83b4874798bfb6&oe=5EF0DCE3'
         ],
-        user: mongoose.Types.ObjectId('5e32a25f3e65ba7204144321'),
+        user: mongoose.Types.ObjectId('5e54c91c2c9d7dfb05079245'),
         views: 0,
         comments:[],
         tags:['วิชาการ']
@@ -49,7 +49,7 @@ const arr = [
         imageURL: [
             'https://scontent.fbkk22-2.fna.fbcdn.net/v/t1.0-9/86757099_10158136271732451_7048548735877382144_n.jpg?_nc_cat=109&_nc_ohc=VBFBXK3NW90AX_nVg2N&_nc_ht=scontent.fbkk22-2.fna&oh=e05b9e522bba3966ed95f44aa0603c61&oe=5EC509E6'
         ],
-        user: mongoose.Types.ObjectId('5e32a25f3e65ba7204144321'),
+        user: mongoose.Types.ObjectId('5e54c91c2c9d7dfb05079245'),
         views: 0,
         comments:[],
         tags: ['วิชาการ']
@@ -61,7 +61,7 @@ const arr = [
         imageURL: [
             'https://scontent-sin2-1.xx.fbcdn.net/v/t1.0-9/77388826_1496956390454444_6510195188281901056_n.jpg?_nc_cat=109&_nc_ohc=RzlZvOZV_sgAX8KBX6U&_nc_ht=scontent-sin2-1.xx&oh=04bfcdbc3d1ed27af171c9f3a498b094&oe=5ED1CCE8'
         ],
-        user: mongoose.Types.ObjectId('5e32a25f3e65ba7204144322'),
+        user: mongoose.Types.ObjectId('5e54c91c2c9d7dfb05079246'),
         views: 0,
         comments:[],
         tags:['ของกิน']
@@ -73,7 +73,7 @@ const arr = [
         imageURL: [
             'https://scontent.fbkk22-1.fna.fbcdn.net/v/t1.0-9/72239473_2510913405665342_3571193288612380672_o.jpg?_nc_cat=108&_nc_ohc=Mu0X1l2zyhUAX_0tF8u&_nc_ht=scontent.fbkk22-1.fna&oh=4c87cb737e34edf8d658df4b28797533&oe=5EEF1802'
         ],
-        user: mongoose.Types.ObjectId('5e32a25f3e65ba7204144320'),
+        user: mongoose.Types.ObjectId('5e54c91c2c9d7dfb05079244'),
         views: 0,
         comments:[],
         tags: ['ค่ายอาสา']
