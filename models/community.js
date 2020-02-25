@@ -26,7 +26,11 @@ const communitySchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId, 
             ref: Comment
         }
-    ]
+    ],
+    tags: {
+        type:Array,
+        required:false
+    }
 })
 
 module.exports = mongoose.model('Communities', communitySchema)

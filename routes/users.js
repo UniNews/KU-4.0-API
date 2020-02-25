@@ -192,8 +192,7 @@ router.put('/:id' ,async (req, res) => {
                             $set: {
                                 displayName: req.body.displayName || oldUser.displayName,
                                 accessType: req.body.accessType || oldUser.accessType,
-                                avatarURl: req.body.avatarURl || oldUser.avatarURl,
-                                email: req.body.email || oldUser.email,
+                                avatarURL: req.body.avatarURL || oldUser.avatarURL,
                                 mobilePhone: req.body.mobilePhone || oldUser.mobilePhone,
                                 category: req.body.category || oldUser.category,
                                 description: req.body.description || oldUser.description,
@@ -217,8 +216,7 @@ router.put('/:id' ,async (req, res) => {
                                 $set: {
                                     displayName: req.body.displayName || oldUser.displayName,
                                     accessType: req.body.accessType || oldUser.accessType,
-                                    avatarURl: req.body.avatarURl || oldUser.avatarURl,
-                                    email: req.body.email || oldUser.email,
+                                    avatarURL: req.body.avatarURL || oldUser.avatarURL,
                                     mobilePhone: req.body.mobilePhone || oldUser.mobilePhone,
                                     category: req.body.category || oldUser.category,
                                     description: req.body.description || oldUser.description,

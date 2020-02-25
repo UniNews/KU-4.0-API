@@ -1,12 +1,9 @@
 const mongoose = require("../configs/database")
 const bcrypt = require('bcrypt')
+const Community = require('./community');
 const SALT_WORK_FACTOR = 10
 
 const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: false,
-    },
     password: {
         type: String,
         required: false
@@ -19,7 +16,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    avatarURl: {
+    avatarURL: {
         type: String,
         required: true,
         default: 'https://discovery-park.co.uk/wp-content/uploads/2017/06/avatar-default.png'
@@ -83,7 +80,19 @@ const userSchema = new mongoose.Schema({
     collectedId: {
         type: String,
         required: false
-    }
+    },
+    likeNews:[
+        { 
+            type: mongoose.Schema.ObjectId, 
+            ref: 'newsCollection' 
+        }
+    ],
+    likeCommunity: [
+        {
+            type: mongoose.Schema.ObjectId, 
+            ref: Community
+        }
+    ]
 })
 
 userSchema.pre('save', function (next) {

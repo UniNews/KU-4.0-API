@@ -123,9 +123,9 @@ app.get("/profile",checkToken , function(req,res) {
 
 app.post("/token", function (req, res) {
     const grant_type = req.body.grant_type
-    const username = req.body.username
+    const email = req.body.email
     const password = req.body.password
-    if (!grant_type || !username || !password) {
+    if (!grant_type || !email || !password) {
         res.status(400).json({ error: "invalid_request" })
         return
     }
@@ -134,7 +134,7 @@ app.post("/token", function (req, res) {
         return
     }
     try {
-        User.findOne({ username }, function (err, user) {
+        User.findOne({ email }, function (err, user) {
             if (err)
                 throw err
             if (!user)
@@ -149,7 +149,7 @@ app.post("/token", function (req, res) {
                         }, ACCESS_TOKEN_SECRET)
                         const idToken = jwt.sign({
                             sub: user._id,
-                            name: user.username,
+                            name: user.email,
                             preferred_username: user.displayName
                         }, ID_TOKEN_SECRET)
                         res.status(200).json({
@@ -170,9 +170,9 @@ app.post("/token", function (req, res) {
 
 app.post("/admin-token", function (req, res) {
     const grant_type = req.body.grant_type
-    const username = req.body.username
+    const email = req.body.email
     const password = req.body.password
-    if (!grant_type || !username || !password) {
+    if (!grant_type || !email || !password) {
         res.status(400).json({ error: "invalid_request" })
         return
     }
@@ -181,7 +181,7 @@ app.post("/admin-token", function (req, res) {
         return
     }
     try {
-        User.findOne({ username }, function (err, user) {
+        User.findOne({ email }, function (err, user) {
             if (err)
                 throw err
             if (!user || !user.accessType)
@@ -196,7 +196,7 @@ app.post("/admin-token", function (req, res) {
                         }, ACCESS_TOKEN_SECRET)
                         const idToken = jwt.sign({
                             sub: user._id,
-                            name: user.username,
+                            name: user.email,
                             preferred_username: user.displayName
                         }, ID_TOKEN_SECRET)
                         res.status(200).json({
@@ -206,7 +206,6 @@ app.post("/admin-token", function (req, res) {
                         })
                     }
                     else {
-                        console.log('paul')
                         res.status(400).json({ error: "invalid_client" })
                     }
                 })
@@ -222,13 +221,9 @@ app.post("/register", async(req, res)=> {
         const validUser = await User.findOne({
             collectedId: req.body.collectedId
         })
-        const validUserEmail = await User.findOne({
-            email: req.body.email
-        })
-        if(!validUser && !validUserEmail) {
+        if(!validUser) {
             const data = {
                 displayName: req.body.displayName,
-                email: req.body.email,
                 follower: [],
                 following: [],
                 loginType: req.body.loginType,
@@ -243,7 +238,6 @@ app.post("/register", async(req, res)=> {
             res.status(204).end()
         }
     }catch (err) {
-        console.log(err)
         res.status(500).end()
     }
 })
@@ -253,12 +247,8 @@ app.post("/registerByEmail", async(req, res)=> {
         const validUserEmail = await User.findOne({
             email: req.body.email
         })
-        const validUsername = await User.findOne({
-            username: req.body.username
-        })
-        if(!validUserEmail && !validUsername) {
+        if(!validUserEmail) {
             const data = {
-                username:req.body.username,
                 password:req.body.password,
                 displayName: req.body.displayName,
                 email: req.body.email,

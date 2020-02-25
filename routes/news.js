@@ -68,7 +68,8 @@ router.put('/:id' ,async (req, res) => {
                                 title: req.body.title || oldNews.title,
                                 description: req.body.description || oldNews.description,
                                 type: req.body.type || oldNews.type,
-                                imageURL: req.body.imageURL || oldNews.imageURL
+                                imageURL: req.body.imageURL || oldNews.imageURL,
+                                tags: req.body.tags || oldNews.tags
                             }
                         }
                     )
@@ -84,7 +85,8 @@ router.put('/:id' ,async (req, res) => {
                                     title: req.body.title || oldNews.title,
                                     description: req.body.description || oldNews.description,
                                     type: req.body.type || oldNews.type,
-                                    imageURL: req.body.imageURL || oldNews.imageURL
+                                    imageURL: req.body.imageURL || oldNews.imageURL,
+                                    tags: req.body.tags || oldNews.tags
                                 }
                             }
                         )
@@ -174,6 +176,7 @@ router.post('/' ,async (req, res) => {
                         type: req.body.type,
                         views: 0,
                         imageURL: req.body.imageURL || [],
+                        tags: req.body.tags || [],
                         user: mongoose.Types.ObjectId(userId)
                     }
                     const news = new News(data)
@@ -662,4 +665,96 @@ router.post('/:id/report/:cid' , async (req, res) => {
     }
 })
 
+//like-news
+router.post('/:id/like-news' ,async (req, res) => {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const cmValid = await News.findOne(
+                    {
+                        '_id': req.params.id
+                    }
+                )
+                const checkUser = await News.findOne(
+                    {
+                        '_id': req.params.id,
+                        "like": userId 
+                    }
+                )
+                if( cmValid !== null )
+                    if( checkUser === null ) {
+                        await News.updateOne(
+                            {
+                                '_id': req.params.id,
+                            },
+                            {
+                                $push: {
+                                    'like': userId
+                                }
+                            }
+                        )
+                        await User.updateOne(
+                            {
+                                '_id': userId,
+                            },
+                            {
+                                $push: {
+                                    'likeNews': req.params.id
+                                }
+                            }
+                        )
+                        res.json(
+                            {
+                                message: 'add like success'
+                            }
+                        )
+                    }
+                    else {
+                        await News.updateOne(
+                            {
+                                '_id': req.params.id,
+                            },
+                            {
+                                $pull: {
+                                    'like': userId
+                                }
+                            }
+                        )
+                        await User.updateOne(
+                            {
+                                '_id': userId,
+                            },
+                            {
+                                $pull: {
+                                    'likeNews': req.params.id
+                                }
+                            }
+                        )
+                        res.json(
+                            {
+                                message: 'unlike success'
+                            }
+                        )
+                    }
+                else
+                    res.status(401).end()
+            }
+        })
+    } catch (err) {
+        res.status(500).json(
+            {
+                message: err.message
+            }
+        )
+    }
+})
 module.exports = router 

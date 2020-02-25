@@ -101,6 +101,7 @@ router.put('/:id' ,async (req, res) => {
                         { 
                             $set: {
                                 description: req.body.description || oldComunities.description,
+                                tags: req.body.tags || oldComunities.tags
                             }
                         }
                     )
@@ -114,6 +115,7 @@ router.put('/:id' ,async (req, res) => {
                             { 
                                 $set: {
                                     description: req.body.description || oldComunities.description,
+                                    tags: req.body.tags || oldComunities.tags
                                 }
                             }
                         )
@@ -199,6 +201,7 @@ router.post('/' ,async (req, res) => {
                 if(req.body.description) {
                     let data = {
                         description: req.body.description,
+                        tags:req.body.tags || [],
                         user: mongoose.Types.ObjectId(userId)
                     }
                     const communities = new Community(data)
@@ -559,6 +562,16 @@ router.post('/:id/like-community' ,async (req, res) => {
                                 }
                             }
                         )
+                        await User.updateOne(
+                            {
+                                '_id': userId,
+                            },
+                            {
+                                $push: {
+                                    'likeCommunity': req.params.id
+                                }
+                            }
+                        )
                         res.json(
                             {
                                 message: 'add like success'
@@ -573,6 +586,16 @@ router.post('/:id/like-community' ,async (req, res) => {
                             {
                                 $pull: {
                                     'like': userId
+                                }
+                            }
+                        )
+                        await User.updateOne(
+                            {
+                                '_id': userId,
+                            },
+                            {
+                                $pull: {
+                                    'likeCommunity': req.params.id
                                 }
                             }
                         )

@@ -36,6 +36,16 @@ const newsSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId, 
             ref: Comment
         }
+    ],
+    tags: {
+        type:Array,
+        required:false
+    },
+    like: [
+        { 
+            type: mongoose.Schema.ObjectId, 
+            ref: 'User' 
+        }
     ]
 })
 
