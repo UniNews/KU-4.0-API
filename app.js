@@ -233,9 +233,25 @@ app.post("/register", async(req, res)=> {
                 data
             )
             newUser.save()
-            res.status(200).json(newUser)
+            const accessToken = jwt.sign({
+                userId: newUser._id
+            }, ACCESS_TOKEN_SECRET)
+            res.status(200).json({
+                token_type: "Bearer",
+                access_token: accessToken
+            })
         } else {
-            res.status(204).end()
+            if( validUser.loginType === "gmail" || validUser.loginType === "facebook" ){
+                const accessToken = jwt.sign({
+                    userId: validUser._id
+                }, ACCESS_TOKEN_SECRET)
+                res.status(200).json({
+                    token_type: "Bearer",
+                    access_token: accessToken
+                })
+            }else {
+                res.status(204).json({message: 'not match type'})
+            }
         }
     }catch (err) {
         res.status(500).end()
@@ -260,7 +276,13 @@ app.post("/registerByEmail", async(req, res)=> {
                 data
             )
             newUser.save()
-            res.status(200).json(newUser)
+            const accessToken = jwt.sign({
+                userId: newUser._id
+            }, ACCESS_TOKEN_SECRET)
+            res.status(200).json({
+                token_type: "Bearer",
+                access_token: accessToken
+            })
         }else {
             res.status(204).json({message: 'duplicate'})
         }
