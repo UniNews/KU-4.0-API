@@ -92,7 +92,11 @@ const userSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId, 
             ref: Community
         }
-    ]
+    ],
+    tags: {
+        type:Array,
+        required:false
+    }
 })
 
 userSchema.pre('save', function (next) {

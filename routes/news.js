@@ -409,6 +409,54 @@ router.get('/:id' , async (req, res) => {
                         }
                     }
                 )
+                if(news.tags) {
+                    news.tags.forEach(async element => {
+                        if(user.tags) {
+                            var foundIndex = Object.values(user.tags).findIndex( e => Object.keys(e)[0] === element )
+                            var found = foundIndex > -1
+                            var updateKey = `tags.${foundIndex}.${element}`
+                            if(found){
+                                await User.updateOne(
+                                    {
+                                        '_id':userId
+                                    },
+                                    {
+                                        $inc: {
+                                            [updateKey]: 1
+                                        }
+                                    }
+                                )
+                            }
+                            else {
+                                await User.updateOne(
+                                    {
+                                        '_id':userId
+                                    },
+                                    {
+                                        $push: {
+                                            tags: {
+                                                [element]:1
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        else 
+                            await User.updateOne(
+                                {
+                                    '_id':userId
+                                },
+                                {
+                                    $push: {
+                                        tags: {
+                                            [element]:1
+                                        }
+                                    }
+                                }
+                            )
+                    });
+                }
                 res.json(news)
             }
         })
