@@ -197,6 +197,127 @@ router.post('/' ,async (req, res) => {
         )
     }
 })
+//get recommendation
+router.get('/recommendation' , async (req, res) => {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                if(user.tags) {
+                    const tagsSortArray = user.tags.sort((a, b) => (Object.values(a)[0] > Object.values(b)[0]) ? -1 : 1).map(e => Object.keys(e)[0])
+                    if(user.tags.length===1){
+                        const news = await News.find({
+                            tags: tagsSortArray[0]
+                        }).populate(
+                            {
+                                path: 'user',
+                                model: 'User',
+                                select:'-password'
+                            }
+                        ).populate(
+                            {
+                                path:'comments',
+                                model: 'Comments'
+                            }
+                        ).sort( { 'createdAt': -1 } ).limit(3)
+                        res.status(200).json(news)
+                    }
+                    else if(user.tags.length===2) {
+                        const news1 = await News.find({
+                            tags: tagsSortArray[0]
+                        }).populate(
+                            {
+                                path: 'user',
+                                model: 'User',
+                                select:'-password'
+                            }
+                        ).populate(
+                            {
+                                path:'comments',
+                                model: 'Comments'
+                            }
+                        ).sort( { 'createdAt': -1 } ).limit(3)
+                        const news2 = await News.find({
+                            tags: tagsSortArray[1]
+                        }).populate(
+                            {
+                                path: 'user',
+                                model: 'User',
+                                select:'-password'
+                            }
+                        ).populate(
+                            {
+                                path:'comments',
+                                model: 'Comments'
+                            }
+                        ).sort( { 'createdAt': -1 } ).limit(3)
+                        const news = [...news1,...news2]
+                        res.status(200).json(news)
+                    }
+                    else if(user.tags.length>2) {
+                        const news1 = await News.find({
+                            tags: tagsSortArray[0]
+                        }).populate(
+                            {
+                                path: 'user',
+                                model: 'User',
+                                select:'-password'
+                            }
+                        ).populate(
+                            {
+                                path:'comments',
+                                model: 'Comments'
+                            }
+                        ).sort( { 'createdAt': -1 } ).limit(3)
+                        const news2 = await News.find({
+                            tags: tagsSortArray[1]
+                        }).populate(
+                            {
+                                path: 'user',
+                                model: 'User',
+                                select:'-password'
+                            }
+                        ).populate(
+                            {
+                                path:'comments',
+                                model: 'Comments'
+                            }
+                        ).sort( { 'createdAt': -1 } ).limit(3)
+                        const news3 = await News.find({
+                            tags: tagsSortArray[2]
+                        }).populate(
+                            {
+                                path: 'user',
+                                model: 'User',
+                                select:'-password'
+                            }
+                        ).populate(
+                            {
+                                path:'comments',
+                                model: 'Comments'
+                            }
+                        ).sort( { 'createdAt': -1 } ).limit(3)
+                        const news = [...news1,...news2,...news3]
+                        res.status(200).json(news)
+                    }
+                } else {
+                    res.status(204).json({message:'no user tags'})
+                }
+            }
+        })
+    }
+    catch (err) {
+        res.status(500).end()
+    }
+})
 
 //get type club news
 router.get('/club' ,async (req, res) => {
