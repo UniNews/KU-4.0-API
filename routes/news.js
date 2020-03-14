@@ -319,6 +319,69 @@ router.get('/recommendation' , async (req, res) => {
     }
 })
 
+//get recommendation following news
+router.get('/recommendationFollowing' ,async (req, res) => {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const result = user.following.map(e=>e.likeNews).reduce((a, b) => a.filter(c => b.includes(c)))
+                res.status(200).json(result)
+            }
+        }).populate(
+            {
+                path: 'following',
+                model: 'User',
+                select:'-password'
+            }
+        ).populate(
+            {
+                path:'following',
+                populate:{
+                    path:'likeNews',
+                    model: 'News'
+                }
+            }
+        ).populate(
+            {
+                path:'following',
+                populate:{
+                    path:'likeNews',
+                    model: 'News',
+                    populate:{
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                }
+            }
+        ).populate(
+            {
+                path:'following',
+                populate:{
+                    path:'likeNews',
+                    model: 'News',
+                    populate:{
+                        path:'comments',
+                        model: 'Comments'
+                    }
+                }
+            }
+        )
+    }
+    catch (err) {
+        res.status(500).end()
+    }
+})
+
 //get type club news
 router.get('/club' ,async (req, res) => {
     const userId = req.userId
