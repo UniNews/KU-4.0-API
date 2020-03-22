@@ -3,6 +3,7 @@ const app = express()
 const newsRouter = require('./routes/news')
 const usersRouter = require('./routes/users')
 const communitiesRouter = require('./routes/community')
+const UploadRouter = require('./routes/uploads')
 const bodyParser = require('body-parser')
 const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs/environments')
 const User = require('./models/user')
@@ -12,9 +13,11 @@ const jwt = require("jsonwebtoken")
 const checkToken = require('./middlewares/checkToken')
 const cors = require('cors')
 
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({
-    extended: false
+    limit: '50mb',
+    extended: true,
+    parameterLimit:50000
 }))
 
 app.use(cors())
@@ -295,4 +298,5 @@ console.log(SERVER_PORT)
 app.use('/news', checkToken, newsRouter)
 app.use('/users', checkToken, usersRouter)
 app.use('/communities', checkToken, communitiesRouter)
+app.use('/uploads',checkToken,UploadRouter)
 app.listen(SERVER_PORT)
