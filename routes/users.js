@@ -6,11 +6,6 @@ const Community = require('../models/community')
 const mongoose = require('mongoose')
 
 router.get("/", function (req, res){
-    const userId = req.userId
-    if (userId == null) {
-        res.status(401).end()
-        return
-    }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
             if (err)
