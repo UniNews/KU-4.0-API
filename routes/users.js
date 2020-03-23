@@ -5,24 +5,29 @@ const News = require('../models/news')
 const Community = require('../models/community')
 const mongoose = require('mongoose')
 
-router.get("/", function (req, res){
+router.get("/", function (req, res) {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
             if (err)
                 throw err
-            if (!user || user.accessType!=='admin')
+            if (!user)
                 res.status(401).end()
             else {
-                const data = await User.find({},{password:0})
+                const data = await User.find({}, { password: 0 })
                 res.status(200).json(data)
             }
         })
-    }catch (err) {
+    } catch (err) {
         res.status(500).end()
     }
 })
 
-router.get("/:id", function (req, res){
+router.get("/:id", function (req, res) {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -35,17 +40,17 @@ router.get("/:id", function (req, res){
             if (!user)
                 res.status(401).end()
             else {
-                const data = await User.findOne({_id:req.params.id},{password:0})
-                const news = await News.find({user:req.params.id})
-                res.status(200).json({data,news})
+                const data = await User.findOne({ _id: req.params.id }, { password: 0 })
+                const news = await News.find({ user: req.params.id })
+                res.status(200).json({ data, news })
             }
         })
-    }catch (err) {
+    } catch (err) {
         res.status(500).end()
     }
 })
 
-router.get("/:id/normal", function (req, res){
+router.get("/:id/normal", function (req, res) {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -58,17 +63,17 @@ router.get("/:id/normal", function (req, res){
             if (!user)
                 res.status(401).end()
             else {
-                const data = await User.findOne({_id:req.params.id},{password:0})
-                const communities = await Community.find({user:req.params.id})
-                res.status(200).json({data,communities})
+                const data = await User.findOne({ _id: req.params.id }, { password: 0 })
+                const communities = await Community.find({ user: req.params.id })
+                res.status(200).json({ data, communities })
             }
         })
-    }catch (err) {
+    } catch (err) {
         res.status(500).end()
     }
 })
 
-router.post("/:id",function (req, res){
+router.post("/:id", function (req, res) {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -87,7 +92,7 @@ router.post("/:id",function (req, res){
                     if (!users || !users.accessType)
                         res.status(401).end()
                     else {
-                        if(!user.following.some(x=>x.toString() === req.params.id)){
+                        if (!user.following.some(x => x.toString() === req.params.id)) {
                             await User.updateOne(
                                 {
                                     '_id': userId
@@ -119,7 +124,7 @@ router.post("/:id",function (req, res){
                                     message: 'follow success'
                                 }
                             )
-                        }else{
+                        } else {
                             await User.updateOne(
                                 {
                                     '_id': userId
@@ -156,34 +161,34 @@ router.post("/:id",function (req, res){
                 })
             }
         })
-    }catch (err) {
+    } catch (err) {
         res.status(500).end()
     }
 })
 
 //modify user
-router.put('/:id' ,async (req, res) => {
+router.put('/:id', async (req, res) => {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
         return
     }
     try {
-        User.findOne({ _id: userId } ,async function (err, user) {
+        User.findOne({ _id: userId }, async function (err, user) {
             if (err)
                 throw err
             if (!user)
                 res.status(401).end()
             else {
                 const oldUser = await User.findOne({
-                    _id: req.params.id 
+                    _id: req.params.id
                 })
-                if(user.accessType==='admin') {
+                if (user.accessType === 'admin') {
                     const result = await User.updateOne(
-                        { 
-                            _id: req.params.id 
+                        {
+                            _id: req.params.id
                         },
-                        { 
+                        {
                             $set: {
                                 displayName: req.body.displayName || oldUser.displayName,
                                 accessType: req.body.accessType || oldUser.accessType,
@@ -202,12 +207,12 @@ router.put('/:id' ,async (req, res) => {
                     )
                     res.json(result)
                 } else {
-                    if(oldUser._id.toString() === userId) {
+                    if (oldUser._id.toString() === userId) {
                         const result = await User.updateOne(
-                            { 
-                                _id: req.params.id 
+                            {
+                                _id: req.params.id
                             },
-                            { 
+                            {
                                 $set: {
                                     displayName: req.body.displayName || oldUser.displayName,
                                     accessType: req.body.accessType || oldUser.accessType,
