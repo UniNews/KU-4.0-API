@@ -40,7 +40,12 @@ router.get("/:id", function (req, res) {
             if (!user)
                 res.status(401).end()
             else {
-                const data = await User.findOne({ _id: req.params.id }, { password: 0 })
+                const data = await User.findOne({ _id: req.params.id }, { password: 0 }).populate(
+                    {
+                        path: 'follower',
+                        model: 'User'
+                    }
+                )
                 const news = await News.find({ user: req.params.id })
                 res.status(200).json({ data, news })
             }
@@ -63,7 +68,12 @@ router.get("/:id/normal", function (req, res) {
             if (!user)
                 res.status(401).end()
             else {
-                const data = await User.findOne({ _id: req.params.id }, { password: 0 })
+                const data = await User.findOne({ _id: req.params.id }, { password: 0 }).populate(
+                    {
+                        path: 'follower',
+                        model: 'User'
+                    }
+                )
                 const communities = await Community.find({ user: req.params.id })
                 res.status(200).json({ data, communities })
             }
