@@ -3,7 +3,7 @@ const app = express()
 const newsRouter = require('./routes/news')
 const usersRouter = require('./routes/users')
 const communitiesRouter = require('./routes/community')
-const UploadRouter = require('./routes/uploads')
+const imagesRouter = require('./routes/images')
 const bodyParser = require('body-parser')
 const { SERVER_PORT, ACCESS_TOKEN_SECRET, ID_TOKEN_SECRET } = require('./configs/environments')
 const User = require('./models/user')
@@ -13,16 +13,16 @@ const jwt = require("jsonwebtoken")
 const checkToken = require('./middlewares/checkToken')
 const cors = require('cors')
 
-app.use(bodyParser.json({limit: '50mb'}))
+app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({
     limit: '50mb',
     extended: true,
-    parameterLimit:50000
+    parameterLimit: 50000
 }))
 
 app.use(cors())
 
-app.get("/profile/me",checkToken , function(req,res) {
+app.get("/profile/me", checkToken, function (req, res) {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -30,50 +30,50 @@ app.get("/profile/me",checkToken , function(req,res) {
     }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
-                if (err)
-                    throw err
-                if (!user)
-                    res.status(401).end()
-                else {
-                    const result = await User.findOne({
-                        _id:userId
-                    }).populate({
-                        path:'following',
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const result = await User.findOne({
+                    _id: userId
+                }).populate({
+                    path: 'following',
+                    model: 'User',
+                    select: '-password'
+                }).populate({
+                    path: 'follower',
+                    model: 'User',
+                    select: '-password'
+                })
+                const communities = await Community.find(
+                    {
+                        user:
+                        {
+                            _id: userId
+                        }
+                    }
+                ).populate(
+                    {
+                        path: 'user',
                         model: 'User',
-                        select:'-password'
-                    }).populate({
-                        path:'follower',
-                        model: 'User',
-                        select:'-password'
-                    })
-                    const communities = await Community.find(
-                        {
-                            user: 
-                            {
-                                _id:userId
-                            }
-                        }
-                    ).populate(
-                        {
-                            path: 'user',
-                            model: 'User',
-                            select:'-password'
-                        }
-                    ).populate(
-                        {
-                            path:'comments',
-                            model: 'Comments'
-                        }
-                    )
-                    res.status(200).json({result,communities})
-                }
-            })
-    }catch (err) {
+                        select: '-password'
+                    }
+                ).populate(
+                    {
+                        path: 'comments',
+                        model: 'Comments'
+                    }
+                )
+                res.status(200).json({ result, communities })
+            }
+        })
+    } catch (err) {
         res.status(500).end()
     }
 })
 
-app.get("/profile",checkToken , function(req,res) {
+app.get("/profile", checkToken, function (req, res) {
     const userId = req.userId
     if (userId == null) {
         res.status(401).end()
@@ -81,45 +81,45 @@ app.get("/profile",checkToken , function(req,res) {
     }
     try {
         User.findOne({ _id: userId }, async function (err, user) {
-                if (err)
-                    throw err
-                if (!user)
-                    res.status(401).end()
-                else {
-                    const result = await User.findOne({
-                        _id:userId
-                    }).populate({
-                        path:'following',
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const result = await User.findOne({
+                    _id: userId
+                }).populate({
+                    path: 'following',
+                    model: 'User',
+                    select: '-password'
+                }).populate({
+                    path: 'follower',
+                    model: 'User',
+                    select: '-password'
+                })
+                const news = await News.find(
+                    {
+                        user:
+                        {
+                            _id: userId
+                        }
+                    }
+                ).populate(
+                    {
+                        path: 'user',
                         model: 'User',
-                        select:'-password'
-                    }).populate({
-                        path:'follower',
-                        model: 'User',
-                        select:'-password'
-                    })
-                    const news = await News.find(
-                        {
-                            user: 
-                            {
-                                _id:userId
-                            }
-                        }
-                    ).populate(
-                        {
-                            path: 'user',
-                            model: 'User',
-                            select:'-password'
-                        }
-                    ).populate(
-                        {
-                            path:'comments',
-                            model: 'Comments'
-                        }
-                    )
-                    res.status(200).json({result,news})
-                }
-            })
-    }catch (err) {
+                        select: '-password'
+                    }
+                ).populate(
+                    {
+                        path: 'comments',
+                        model: 'Comments'
+                    }
+                )
+                res.status(200).json({ result, news })
+            }
+        })
+    } catch (err) {
         res.status(500).end()
     }
 })
@@ -219,12 +219,12 @@ app.post("/admin-token", function (req, res) {
     }
 })
 
-app.post("/register", async(req, res)=> {
-    try{
+app.post("/register", async (req, res) => {
+    try {
         const validUser = await User.findOne({
             collectedId: req.body.collectedId
         })
-        if(!validUser) {
+        if (!validUser) {
             const data = {
                 displayName: req.body.displayName,
                 follower: [],
@@ -244,7 +244,7 @@ app.post("/register", async(req, res)=> {
                 access_token: accessToken
             })
         } else {
-            if( validUser.loginType === "gmail" || validUser.loginType === "facebook" ){
+            if (validUser.loginType === "gmail" || validUser.loginType === "facebook") {
                 const accessToken = jwt.sign({
                     userId: validUser._id
                 }, ACCESS_TOKEN_SECRET)
@@ -252,23 +252,23 @@ app.post("/register", async(req, res)=> {
                     token_type: "Bearer",
                     access_token: accessToken
                 })
-            }else {
-                res.status(204).json({message: 'not match type'})
+            } else {
+                res.status(204).json({ message: 'not match type' })
             }
         }
-    }catch (err) {
+    } catch (err) {
         res.status(500).end()
     }
 })
 
-app.post("/registerByEmail", async(req, res)=> {
-    try{
+app.post("/registerByEmail", async (req, res) => {
+    try {
         const validUserEmail = await User.findOne({
             email: req.body.email
         })
-        if(!validUserEmail) {
+        if (!validUserEmail) {
             const data = {
-                password:req.body.password,
+                password: req.body.password,
                 displayName: req.body.displayName,
                 email: req.body.email,
                 follower: [],
@@ -286,10 +286,10 @@ app.post("/registerByEmail", async(req, res)=> {
                 token_type: "Bearer",
                 access_token: accessToken
             })
-        }else {
-            res.status(204).json({message: 'duplicate'})
+        } else {
+            res.status(204).json({ message: 'duplicate' })
         }
-    }catch (err) {
+    } catch (err) {
         res.status(500).end()
     }
 })
@@ -298,5 +298,5 @@ console.log(SERVER_PORT)
 app.use('/news', checkToken, newsRouter)
 app.use('/users', checkToken, usersRouter)
 app.use('/communities', checkToken, communitiesRouter)
-app.use('/uploads',checkToken,UploadRouter)
+app.use('/images', imagesRouter)
 app.listen(SERVER_PORT)
