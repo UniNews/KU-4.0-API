@@ -18,7 +18,17 @@ router.get("/", function (req, res) {
             if (!user)
                 res.status(401).end()
             else {
-                const data = await User.find({}, { password: 0 })
+                const data = await User.find({}, { password: 0 }).populate(
+                    {
+                        path: 'follower',
+                        model: 'User'
+                    }
+                ).populate(
+                    {
+                        path: 'following',
+                        model: 'User'
+                    }
+                )
                 res.status(200).json(data)
             }
         })
