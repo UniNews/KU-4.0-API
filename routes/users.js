@@ -125,7 +125,7 @@ router.post("/:id", function (req, res) {
                 User.findOne({ _id: req.params.id }, async function (err, users) {
                     if (err)
                         throw err
-                    if (!users || !users.accessType)
+                    if (!users)
                         res.status(401).end()
                     else {
                         if (!user.following.some(x => x.toString() === req.params.id)) {
