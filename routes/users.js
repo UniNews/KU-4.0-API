@@ -45,6 +45,11 @@ router.get("/:id", function (req, res) {
                         path: 'follower',
                         model: 'User'
                     }
+                ).populate(
+                    {
+                        path: 'following',
+                        model: 'User'
+                    }
                 )
                 const news = await News.find({ user: req.params.id })
                 res.status(200).json({ data, news })
@@ -71,6 +76,11 @@ router.get("/:id/normal", function (req, res) {
                 const data = await User.findOne({ _id: req.params.id }, { password: 0 }).populate(
                     {
                         path: 'follower',
+                        model: 'User'
+                    }
+                ).populate(
+                    {
+                        path: 'following',
                         model: 'User'
                     }
                 )
