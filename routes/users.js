@@ -21,12 +21,14 @@ router.get("/", function (req, res) {
                 const data = await User.find({}, { password: 0 }).populate(
                     {
                         path: 'follower',
-                        model: 'User'
+                        model: 'User',
+                        select: '-password'
                     }
                 ).populate(
                     {
                         path: 'following',
-                        model: 'User'
+                        model: 'User',
+                        select: '-password'
                     }
                 )
                 res.status(200).json(data)
@@ -53,12 +55,14 @@ router.get("/:id", function (req, res) {
                 const data = await User.findOne({ _id: req.params.id }, { password: 0 }).populate(
                     {
                         path: 'follower',
-                        model: 'User'
+                        model: 'User',
+                        select: '-password'
                     }
                 ).populate(
                     {
                         path: 'following',
-                        model: 'User'
+                        model: 'User',
+                        select: '-password'
                     }
                 )
                 const news = await News.find({ user: req.params.id })
@@ -86,12 +90,14 @@ router.get("/:id/normal", function (req, res) {
                 const data = await User.findOne({ _id: req.params.id }, { password: 0 }).populate(
                     {
                         path: 'follower',
-                        model: 'User'
+                        model: 'User',
+                        select: '-password'
                     }
                 ).populate(
                     {
                         path: 'following',
-                        model: 'User'
+                        model: 'User',
+                        select: '-password'
                     }
                 )
                 const communities = await Community.find({ user: req.params.id })
