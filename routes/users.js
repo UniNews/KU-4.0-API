@@ -65,7 +65,13 @@ router.get("/:id", function (req, res) {
                         select: '-password'
                     }
                 )
-                const news = await News.find({ user: req.params.id })
+                const news = await News.find({ user: req.params.id }).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                )
                 res.status(200).json({ data, news })
             }
         })
@@ -100,7 +106,13 @@ router.get("/:id/normal", function (req, res) {
                         select: '-password'
                     }
                 )
-                const communities = await Community.find({ user: req.params.id })
+                const communities = await Community.find({ user: req.params.id }).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                )
                 res.status(200).json({ data, communities })
             }
         })
