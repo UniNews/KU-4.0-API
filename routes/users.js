@@ -292,4 +292,65 @@ router.put('/:id', async (req, res) => {
     }
 })
 
+router.get("/:id/following", function (req, res) {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const resultMe = await User.findOne({
+                    _id: userId
+                }).populate({
+                    path: 'following',
+                    model: 'User',
+                    select: '-password'
+                }).populate({
+                    path: 'follower',
+                    model: 'User',
+                    select: '-password'
+                })
+                const resultUser = await User.findOne({
+                    _id: req.params.id
+                }).populate({
+                    path: 'following',
+                    model: 'User',
+                    select: '-password'
+                }).populate({
+                    path: 'follower',
+                    model: 'User',
+                    select: '-password'
+                })
+                const communities = await Community.find(
+                    {
+                        user:
+                        {
+                            _id: userId
+                        }
+                    }
+                ).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select: '-password'
+                    }
+                ).populate(
+                    {
+                        path: 'comments',
+                        model: 'Comments'
+                    }
+                )
+                res.status(200).json({ resultMe,resultUser,communities })
+            }
+        })
+    } catch (err) {
+        res.status(500).end()
+    }
+})
 module.exports = router 
