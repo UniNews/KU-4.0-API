@@ -65,55 +65,25 @@ router.get("/:id", function (req, res) {
                         select: '-password'
                     }
                 )
-                const news = await News.find({ user: req.params.id }).populate(
-                    {
-                        path: 'user',
-                        model: 'User',
-                        select:'-password'
-                    }
-                )
-                res.status(200).json({ data, news })
-            }
-        })
-    } catch (err) {
-        res.status(500).end()
-    }
-})
-
-router.get("/:id/normal", function (req, res) {
-    const userId = req.userId
-    if (userId == null) {
-        res.status(401).end()
-        return
-    }
-    try {
-        User.findOne({ _id: userId }, async function (err, user) {
-            if (err)
-                throw err
-            if (!user)
-                res.status(401).end()
-            else {
-                const data = await User.findOne({ _id: req.params.id }, { password: 0 }).populate(
-                    {
-                        path: 'follower',
-                        model: 'User',
-                        select: '-password'
-                    }
-                ).populate(
-                    {
-                        path: 'following',
-                        model: 'User',
-                        select: '-password'
-                    }
-                )
-                const communities = await Community.find({ user: req.params.id }).populate(
-                    {
-                        path: 'user',
-                        model: 'User',
-                        select:'-password'
-                    }
-                )
-                res.status(200).json({ data, communities })
+                if(data.accessType!==undefined) {
+                    const news = await News.find({ user: req.params.id }).populate(
+                        {
+                            path: 'user',
+                            model: 'User',
+                            select:'-password'
+                        }
+                    )
+                    res.status(200).json({ data, news })
+                } else {
+                    const communities = await Community.find({ user: req.params.id }).populate(
+                        {
+                            path: 'user',
+                            model: 'User',
+                            select:'-password'
+                        }
+                    )
+                    res.status(200).json({ data, communities })
+                }
             }
         })
     } catch (err) {
