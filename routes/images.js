@@ -34,7 +34,7 @@ router.get('/:filename', async (req, res) => {
             if (!file || file.length === 0)
                 return res.status(404).end()
             // Check if image
-            if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
+            if (file.contentType === 'image/jpg' || file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
                 // set the proper content type 
                 res.set('Content-Type', file.contentType)
                 const readstream = gfs.createReadStream(file.filename)
