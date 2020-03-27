@@ -661,16 +661,6 @@ router.get('/:id' , async (req, res) => {
                         path:'comments',
                         model: 'Comments',
                         populate: {
-                            path: 'like',
-                            model: 'User',
-                            select:'-password'
-                        }
-                    }
-                ).populate(
-                    {
-                        path:'comments',
-                        model: 'Comments',
-                        populate: {
                             path: 'user',
                             model: 'User',
                             select:'-password'
@@ -1071,6 +1061,52 @@ router.post('/:id/like-news' ,async (req, res) => {
                 message: err.message
             }
         )
+    }
+})
+
+router.get('/:id/getLike' ,(req, res) => {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const news = await News.findOne({
+                    _id:req.params.id
+                }).populate(
+                    {
+                        path: 'user',
+                        model: 'User',
+                        select:'-password'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments'
+                    }
+                ).populate(
+                    {
+                        path:'comments',
+                        model: 'Comments',
+                        populate: {
+                            path: 'like',
+                            model: 'User',
+                            select:'-password'
+                        }
+                    }
+                )
+                res.status(200).json(news)
+            }
+        })
+    }
+    catch (err) {
+        res.status(500).end()
     }
 })
 module.exports = router 
