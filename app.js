@@ -37,14 +37,8 @@ app.get("/profile/me", checkToken, function (req, res) {
             else {
                 const result = await User.findOne({
                     _id: userId
-                }).populate({
-                    path: 'following',
-                    model: 'User',
-                    select: '-password'
-                }).populate({
-                    path: 'follower',
-                    model: 'User',
-                    select: '-password'
+                },{ 
+                    password: 0 
                 })
                 const communities = await Community.find(
                     {
@@ -88,6 +82,8 @@ app.get("/profile", checkToken, function (req, res) {
             else {
                 const result = await User.findOne({
                     _id: userId
+                },{ 
+                    password: 0 
                 }).populate({
                     path: 'following',
                     model: 'User',

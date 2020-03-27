@@ -292,6 +292,40 @@ router.put('/:id', async (req, res) => {
     }
 })
 
+router.get("/me/following", function (req, res) {
+    const userId = req.userId
+    if (userId == null) {
+        res.status(401).end()
+        return
+    }
+    try {
+        User.findOne({ _id: userId }, async function (err, user) {
+            if (err)
+                throw err
+            if (!user)
+                res.status(401).end()
+            else {
+                const result = await User.findOne({
+                    _id: userId
+                },{ 
+                    password: 0 
+                }).populate({
+                    path: 'following',
+                    model: 'User',
+                    select: '-password'
+                }).populate({
+                    path: 'follower',
+                    model: 'User',
+                    select: '-password'
+                })
+                res.status(200).json(result)
+            }
+        })
+    } catch (err) {
+        res.status(500).end()
+    }
+})
+
 router.get("/:id/following", function (req, res) {
     const userId = req.userId
     if (userId == null) {
@@ -307,6 +341,8 @@ router.get("/:id/following", function (req, res) {
             else {
                 const resultMe = await User.findOne({
                     _id: userId
+                },{ 
+                    password: 0 
                 }).populate({
                     path: 'following',
                     model: 'User',
@@ -318,6 +354,8 @@ router.get("/:id/following", function (req, res) {
                 })
                 const resultUser = await User.findOne({
                     _id: req.params.id
+                },{ 
+                    password: 0 
                 }).populate({
                     path: 'following',
                     model: 'User',
@@ -353,4 +391,5 @@ router.get("/:id/following", function (req, res) {
         res.status(500).end()
     }
 })
+
 module.exports = router 
