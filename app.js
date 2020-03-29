@@ -226,7 +226,8 @@ app.post("/register", async (req, res) => {
                 follower: [],
                 following: [],
                 loginType: req.body.loginType,
-                collectedId: req.body.collectedId
+                collectedId: req.body.collectedId,
+                active: true
             }
             const newUser = new User(
                 data
@@ -269,7 +270,8 @@ app.post("/registerByEmail", async (req, res) => {
                 email: req.body.email,
                 follower: [],
                 following: [],
-                loginType: 'email'
+                loginType: 'email',
+                active: true
             }
             const newUser = new User(
                 data
