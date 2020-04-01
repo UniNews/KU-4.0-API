@@ -1,144 +1,151 @@
-const mongoose = require("../configs/database")
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt')
-const Community = require('./community');
 const SALT_WORK_FACTOR = 10
+const uniqueValidator = require('mongoose-unique-validator')
+const jwt = require('jsonwebtoken')
+const { ACCESS_TOKEN_SECRET } = require('../configs/environments')
 
-const userSchema = new mongoose.Schema({
-    password: {
+const UserSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        lowercase: true,
+        unique: true,
+        match: [/^[a-zA-Z0-9]+$/, 'username is invalid'],
+    },
+    loginType: {
+        type: String,
+        enum: ['normal', 'google', 'facebook'],
+        required: true
+    },
+    uid: { // for facebook, google login type
         type: String,
         required: false
+    },
+    password: { // for email login type
+        type: String,
+        select: false
     },
     displayName: {
         type: String,
         required: true
     },
-    accessType: {
+    role: {
         type: String,
-        required: false
+        enum: ['admin', 'store', 'user'],
+        default: 'user',
+        required: true
     },
     avatarURL: {
         type: String,
         required: true,
         default: 'https://discovery-park.co.uk/wp-content/uploads/2017/06/avatar-default.png'
     },
-    email: {
+    active: {
+        type: Boolean,
+        required: true,
+        default: true,
+    },
+    bio: {
         type: String,
         required: false
+    },
+    followings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'News'
+    }],
+    views: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'News'
+    }],
+    /* additional fields for stores or admins */
+    email: {
+        type: String,
+        lowercase: true,
+        match: [/\S+@\S+\.\S+/, 'email is invalid']
     },
     firstName: {
         type: String,
-        required: false
     },
     lastName: {
         type: String,
-        required: false
     },
     mobilePhone: {
         type: String,
-        required: false
     },
-    active: {
-        type: Boolean,
-        required: false
-    },
-    description: {
+    tags: [{
         type: String,
-        required: false
-    },
-    following: [
-        { 
-            type: mongoose.Schema.ObjectId, 
-            ref: 'User' 
-        }
-    ],
-    follower: [
-        { 
-            type: mongoose.Schema.ObjectId, 
-            ref: 'User' 
-        }
-    ],
-    category: {
+    }],
+    contacts: {
         type: String,
-        required: false
     },
-    owner: {
-        type: String,
-        required: false
-    },
-    address: {
-        type: String,
-        required: false
-    },
-    fbPage: {
-        type: String,
-        required: false
-    },
-    loginType: {
-        type: String,
-        required: false
-    },
-    collectedId: {
-        type: String,
-        required: false
-    },
-    likeNews:[
-        { 
-            type: mongoose.Schema.ObjectId, 
-            ref: 'newsCollection' 
-        }
-    ],
-    likeCommunity: [
-        {
-            type: mongoose.Schema.ObjectId, 
-            ref: Community
-        }
-    ],
-    tags: {
-        type:Array,
-        required:false
-    }
-})
+}, { timestamps: true })
 
-userSchema.pre('save', function (next) {
-    var user = this
-    if (!user.isModified('password')) return next()
-    bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
-        if (err)
-            return next(err)
-        bcrypt.hash(user.password, salt, function (err, hash) {
-            if (err) return next(err)
-            user.password = hash
-            next()
-        })
-    })
-})
+UserSchema.plugin(uniqueValidator, { message: 'user is already taken.' })
 
-// userSchema.pre('updateOne', function (next) {
-//     var user = this._update.$set
-//     try{
-//         console.log(user.password)
-//         if (!user.password) return next()
-//         console.log(user.password,'sss')
-//         bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
-//             if (err)
-//                 return next(err)
-//             bcrypt.hash(user.password, salt, function (err, hash) {
-//                 if (err) return next(err)
-//                 user.password = hash
-//                 next()
-//             })
-//         })
-//     }catch (error){
-//         return next()
-//     }
-// })
-
-userSchema.methods.comparePassword = function (candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
-        if (err)
-            return cb(err)
-        cb(null, isMatch)
-    })
+UserSchema.methods.setPassword = async function (password) {
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+    const hash = await bcrypt.hash(password, salt)
+    this.password = hash
 }
 
-module.exports = mongoose.model('User', userSchema)
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password)
+}
+
+UserSchema.methods.generateJWT = function () {
+    var today = new Date()
+    var exp = new Date(today)
+    exp.setDate(today.getDate() + 60)
+    return jwt.sign({
+        id: this._id,
+        username: this.username,
+        exp: parseInt(exp.getTime() / 1000),
+    }, ACCESS_TOKEN_SECRET)
+}
+
+UserSchema.methods.follow = async function (user) {
+    if (this.followings.indexOf(user._id) === -1) {
+        this.followings.push(user)
+        user.followers.push(this)
+        await user.save()
+        return await this.save()
+    }
+}
+
+UserSchema.methods.unfollow = async function (user) {
+    if (this.followings.indexOf(user._id) > -1) {
+        this.followings.remove(user)
+        user.followers.remove(this)
+        await user.save()
+        return await this.save()
+    }
+}
+
+UserSchema.methods.like = async function (article) {
+    if (this.likes.indexOf(article._id) === -1) {
+        this.likes.push(article)
+        article.likes.push(this)
+        await article.save()
+        return await this.save()
+    }
+}
+
+UserSchema.methods.unlike = async function (article) {
+    if (this.likes.indexOf(article._id) > -1) {
+        this.likes.remove(article)
+        article.likes.remove(this)
+        await article.save()
+        return await this.save()
+    }
+}
+
+
+mongoose.model('User', UserSchema)

@@ -2,20 +2,20 @@ const express = require('express')
 const router = express.Router()
 const storage = require('../configs/storage')
 const multer = require('multer')
-const Grid = require('gridfs-stream');
+const Grid = require('gridfs-stream')
 const mongo = require('mongodb')
-const mongoose = require('../configs/database')
-const conn = mongoose.connection;
+const mongoose = require('mongoose')
+const conn = mongoose.connection
 
 let gfs
 conn.once('open', () => {
     gfs = Grid(conn.db, mongo)
     gfs.collection('images')
-});
+})
 
 const upload = multer({ // multer settings for single upload
     storage: storage
-}).single('avatar');
+}).single('image')
 
 router.post('/', (req, res, next) => {
     upload(req, res, function (err) {
@@ -25,7 +25,7 @@ router.post('/', (req, res, next) => {
             res.setHeader('Location', '/images/' + req.file.filename)
             res.status(201).end()
         }
-    });
+    })
 })
 
 router.get('/:filename', async (req, res) => {
