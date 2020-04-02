@@ -5,7 +5,6 @@ const { SERVER_PORT, MONGODB_URL } = require('./configs/environments')
 const cors = require('cors')
 const mongoose = require('mongoose')
 
-
 mongoose.connect(MONGODB_URL)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
