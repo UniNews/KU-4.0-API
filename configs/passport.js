@@ -27,12 +27,12 @@ passport.use(new FacebookTokenStrategy({
         if (user)
             done(null, user)
         // the user hasn't already been registered
-        const { id, name, profile_pic } = profile
+        const { id, displayName, photos } = profile
         const createdUser = await User.create({
             uid: id,
-            displayName: name,
+            displayName: displayName,
             loginType: 'facebook',
-            avatarURL: profile_pic
+            avatarURL: photos[0].value
         })
         return done(null, createdUser)
     } catch (err) {
