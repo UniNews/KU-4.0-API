@@ -19,6 +19,20 @@ router.param('article', async function (req, res, next, id) {
     }
 })
 
+// preload comment objects on routes with ':comment'
+router.param('comment', async function (req, res, next, id) {
+    try {
+        const comment = await Comment.findById(id)
+        if (!comment)
+            return res.sendStatus(404)
+        req.comment = comment
+        return next()
+    }
+    catch (err) {
+        return next(err)
+    }
+})
+
 // embed limit, offset or tag query parameter into req to filter results
 const filter = function (req, res, next) {
     req.limit = req.query.limit || 20
@@ -306,8 +320,101 @@ router.delete('/:article/like', async function (req, res, next) {
 
 router.get('/:article/comments', async function (req, res, next) {
     try {
-        const article = await req.article.populate('comments').execPopulate()
+        const article = await req.article.populate({
+            path: 'comments',
+            populate: {
+                path: 'author'
+            }
+        }).execPopulate()
         return res.json(article.comments)
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+router.post('/:article/comments',
+    check('description').isLength({ min: 1, max: 200 }).withMessage('description must be between 1 and 200 chars long.'),
+    async function (req, res, next) {
+        try {
+            const user = await User.findById(req.payload.id)
+            if (!user)
+                return res.sendStatus(401)
+            const article = req.article
+            const author = user
+            const description = req.body.description
+            const comment = new Comment({
+                description,
+                author,
+                article
+            })
+            const createdComment = await comment.save()
+            // update article
+            article.comments.push(comment)
+            await article.save()
+            return res.json(createdComment)
+        }
+        catch (err) {
+            next(err)
+        }
+    })
+
+
+router.delete('/:article/comments/:comment', async function (req, res, next) {
+    try {
+        if (req.comment.author._id.toString() === req.payload.id.toString()) {
+            req.article.comments.remove(req.comment._id)
+            await req.article.save()
+            await Comment.find({ _id: req.comment._id }).remove()
+            res.sendStatus(204)
+        } else
+            res.sendStatus(403)
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+router.post('/:article/comments/:comment/like', async function (req, res, next) {
+    try {
+        const user = await User.findById(req.payload.id)
+        const article = req.article
+        const comment = req.comment
+        if (!user)
+            return res.sendStatus(401)
+        if (user._id.toString() !== comment.author._id.toString())
+            return res.sendStatus(403)
+        if (comment.article._id.toString() === article._id.toString()) {
+            if (comment.likes.indexOf(user._id) === -1) {
+                comment.likes.push(user)
+                await comment.save()
+            }
+            return res.sendStatus(204)
+        }
+        else
+            return res.sendStatus(404)
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+router.delete('/:article/comments/:comment/like', async function (req, res, next) {
+    try {
+        const user = await User.findById(req.payload.id)
+        const article = req.article
+        const comment = req.comment
+        if (!user)
+            return res.sendStatus(401)
+        if (user._id.toString() !== comment.author._id.toString())
+            return res.sendStatus(403)
+        if (comment.article._id.toString() === article._id.toString())
+            if (comment.likes.indexOf(user._id) > -1) {
+                comment.likes.remove(user)
+                await comment.save()
+                return res.sendStatus(204)
+            }
+        return res.sendStatus(404)
     }
     catch (err) {
         next(err)
