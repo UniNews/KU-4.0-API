@@ -43,20 +43,27 @@ const ArticleSchema = new mongoose.Schema({
     }]
 }, { timestamps: true })
 
+ArticleSchema.pre('save', function (next) {
+    this._wasNew = this.isNew
+    next()
+})
+
 ArticleSchema.post('save', function (article) {
-    const sender = article.author
-    const type = 'article'
-    const receivers = article.author.followers
-    const title = article.title
-    const body = article.description
-    const notification = new Notification({
-        sender,
-        type,
-        receivers,
-        title,
-        body
-    })
-    notification.save()
+    if (article._wasNew) {
+        const sender = article.author
+        const type = 'article'
+        const receivers = article.author.followers
+        const title = article.title
+        const body = article.description
+        const notification = new Notification({
+            sender,
+            type,
+            receivers,
+            title,
+            body
+        })
+        notification.save()
+    }
 })
 
 mongoose.model('Article', ArticleSchema)

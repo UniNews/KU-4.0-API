@@ -84,6 +84,28 @@ router.get('/communities', filter, async function (req, res, next) {
     }
 })
 
+router.get('/communities/trending', filter, async function (req, res, next) {
+    try {
+        const query = req.query
+        const limit = req.limit
+        const offset = req.offset
+        query.articleType = 'community'
+        const articles = await Article.find(query)
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ likes: -1 })
+            .populate('author')
+        const articlesCount = await Article.count(query)
+        return res.json({
+            articles: articles,
+            articlesCount: articlesCount
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
 router.get('/news', filter, async function (req, res, next) {
     try {
         const query = req.query
