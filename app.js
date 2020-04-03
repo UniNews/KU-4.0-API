@@ -10,6 +10,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
 
+require('./models/Notification')
 require('./models/User')
 require('./configs/passport')
 require('./models/Article')

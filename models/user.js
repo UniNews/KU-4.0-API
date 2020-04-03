@@ -86,6 +86,13 @@ const UserSchema = new mongoose.Schema({
     contacts: {
         type: String,
     },
+    notifications: [{
+        type: mongoose.Schema.ObjectId,
+        ref: 'Notification'
+    }],
+    tokenNotification: {
+        type: String
+    },
 }, { timestamps: true })
 
 UserSchema.plugin(uniqueValidator, { message: 'user is already taken.' })
