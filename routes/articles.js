@@ -37,7 +37,7 @@ router.param('comment', async function (req, res, next, id) {
 const filter = function (req, res, next) {
     req.limit = req.query.limit || 20
     req.offset = req.query.offset || 0
-    req.query = req.query.tag ? { tags: { "$in": [req.query.tag] } } : {}
+    req.query = req.query.tag ? { tags: { '$in': [req.query.tag] } } : {}
     next()
 }
 
@@ -191,6 +191,44 @@ router.get('/news/lost-found', filter, async function (req, res, next) {
             articles: articles,
             articlesCount: articlesCount
         })
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+router.get('/recommendations', async function (req, res, next) {
+    try {
+        const user = await User.findById(req.payload.id)
+        if (!user)
+            return res.sendStatus(401)
+        const tags = await Article.aggregate([{ $match: { likes: { $in: [user._id] } } }, { $unwind: '$tags' }, { $sortByCount: '$tags' }, { $limit: 2 }])
+        const preferenceTags = tags.map(function (tag) {
+            return tag._id
+        })
+        const results = await Promise.all([
+            Article.find({ tags: { $in: preferenceTags } })
+                .sort({ likes: -1 })
+                .populate('author'),
+            Article.find({ author: { $in: user.followings } })
+                .sort({ createdAt: 'desc' })
+                .populate('author')
+        ])
+        const tagArticles = results[0]
+        const followingUserArticles = results[1]
+        return res.json([
+            {
+                type: 'feed',
+                articles: followingUserArticles,
+                articlesCount: followingUserArticles.length
+            },
+            {
+                type: 'tags',
+                tags: preferenceTags,
+                articles: tagArticles,
+                articlesCount: tagArticles.length
+            },
+        ])
     }
     catch (err) {
         next(err)
