@@ -26,6 +26,15 @@ router.get('/:user', async function (req, res, next) {
     }
 })
 
+router.get('/:user/articles', async function (req, res, next) {
+    try {
+        const user = await req.user.populate('articles').execPopulate()
+        res.status(200).json(user.articles)
+    } catch (err) {
+        return next(err)
+    }
+})
+
 router.get('/:user/followings', async function (req, res, next) {
     try {
         const user = await req.user.populate('followings').execPopulate()

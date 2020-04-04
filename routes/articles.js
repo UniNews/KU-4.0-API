@@ -345,6 +345,9 @@ router.post('/', [
                 tags
             })
         const createdArticle = await article.save()
+        // update user
+        user.articles.push(createdArticle._id)
+        await user.save()
         return res.json(createdArticle)
     }
     catch (err) {

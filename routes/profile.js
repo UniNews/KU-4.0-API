@@ -16,12 +16,23 @@ router.get('/', async function (req, res, next) {
     }
 })
 
+router.get('/articles', async function (req, res, next) {
+    try {
+        const user = await User.findById(req.payload.id, { articles: 1 }).populate('articles')
+        if (!user)
+            return res.sendStatus(401)
+        res.status(200).json(user.articles)
+    } catch (err) {
+        return next(err)
+    }
+})
+
 router.get('/followings', async function (req, res) {
     try {
         const user = await User.findById(req.payload.id, { followings: 1 }).populate('followings')
         if (!user)
             return res.sendStatus(401)
-        res.status(200).json(user)
+        res.status(200).json(user.followings)
     } catch (err) {
         return next(err)
     }
@@ -32,7 +43,7 @@ router.get('/followers', async function (req, res) {
         const user = await User.findById(req.payload.id, { followers: 1 }).populate('followers')
         if (!user)
             return res.sendStatus(401)
-        res.status(200).json(user)
+        res.status(200).json(user.followers)
     } catch (err) {
         return next(err)
     }
