@@ -48,4 +48,16 @@ NotificationSchema.post('save', async function (doc) {
     sendPushNotifications(notifications)
 })
 
+NotificationSchema.methods.toJSONFor = function (user) {
+    return {
+        _id: this._id,
+        sender: this.sender,
+        type: this.type,
+        title: this.title,
+        body: this.body,
+        createdAt: this.createdAt,
+        isRead: this.reads.indexOf(user._id) > 1
+    }
+}
+
 mongoose.model('Notification', NotificationSchema)

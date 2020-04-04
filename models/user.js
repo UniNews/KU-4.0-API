@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const SALT_WORK_FACTOR = 10
 const uniqueValidator = require('mongoose-unique-validator')
@@ -157,6 +157,5 @@ UserSchema.methods.unlike = async function (article) {
         return await this.save()
     }
 }
-
 
 mongoose.model('User', UserSchema)

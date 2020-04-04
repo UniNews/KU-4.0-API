@@ -18,7 +18,7 @@ router.get('/', async function (req, res, next) {
 
 router.get('/articles', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id, { articles: 1 }).populate('articles')
+        const user = await User.findById(req.payload.id).populate('articles')
         if (!user)
             return res.sendStatus(401)
         res.status(200).json(user.articles)
@@ -27,9 +27,28 @@ router.get('/articles', async function (req, res, next) {
     }
 })
 
+router.get('/notifications', async function (req, res, next) {
+    try {
+        const user = await User.findById(req.payload.id).populate({
+            path: 'notifications',
+            populate: {
+                path: 'sender'
+            }
+        })
+        if (!user)
+            return res.sendStatus(401)
+        const notifications = user.notifications.map(function (notification) {
+            return notification.toJSONFor(user)
+        })
+        res.status(200).json(notifications)
+    } catch (err) {
+        return next(err)
+    }
+})
+
 router.get('/followings', async function (req, res) {
     try {
-        const user = await User.findById(req.payload.id, { followings: 1 }).populate('followings')
+        const user = await User.findById(req.payload.id).populate('followings')
         if (!user)
             return res.sendStatus(401)
         res.status(200).json(user.followings)
@@ -40,7 +59,7 @@ router.get('/followings', async function (req, res) {
 
 router.get('/followers', async function (req, res) {
     try {
-        const user = await User.findById(req.payload.id, { followers: 1 }).populate('followers')
+        const user = await User.findById(req.payload.id).populate('followers')
         if (!user)
             return res.sendStatus(401)
         res.status(200).json(user.followers)
