@@ -59,11 +59,11 @@ const UserSchema = new mongoose.Schema({
     }],
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'News'
+        ref: 'Article'
     }],
     views: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'News'
+        ref: 'Article'
     }],
     /* additional fields for stores or admins */
     email: {

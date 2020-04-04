@@ -11,9 +11,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
 
 require('./models/Notification')
+require('./models/Article')
 require('./models/User')
 require('./configs/passport')
-require('./models/Article')
 require('./models/Comment')
 app.use(require('./routes'))
 
