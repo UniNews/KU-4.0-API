@@ -60,9 +60,9 @@ router.put('/', async function (req, res, next) {
         const avatarURL = req.body.avatarURL
         const bio = req.body.bio
         if (typeof displayName !== 'undefined')
-            req.user.username = displayName
+            user.displayName = displayName
         if (typeof avatarURL !== 'undefined')
-            user.email = avatarURL
+            user.avatarURL = avatarURL
         if (typeof bio !== 'undefined')
             user.bio = bio
         // if the role is store or admin, update additional fields...
