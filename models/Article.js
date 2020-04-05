@@ -81,7 +81,8 @@ ArticleSchema.methods.toJSONFor = function (user) {
         comments: this.comments,
         tags: this.tags,
         likes: this.likes,
-        isLiked: this.likes.indexOf(user._id) > -1
+        isLiked: this.likes.indexOf(user._id) > -1,
+        createdAt: this.createdAt,
     }
 }
 

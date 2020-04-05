@@ -16,8 +16,7 @@ router.use(async function (req, res, next) {
 // preload article objects on routes with ':article'
 router.param('article', async function (req, res, next, id) {
     try {
-        const article = await Article.findById(id)
-        // .populate('author')
+        const article = await Article.findById(id).populate('author')
         if (!article)
             return res.sendStatus(404)
         req.article = article

@@ -26,7 +26,8 @@ CommentSchema.methods.toJSONFor = function (user) {
         description: this.description,
         author: this.author.toJSONFor(user),
         likes: this.likes,
-        isLiked: this.likes.indexOf(user._id) > -1
+        isLiked: this.likes.indexOf(user._id) > -1,
+        createdAt: this.createdAt,
     }
 }
 
