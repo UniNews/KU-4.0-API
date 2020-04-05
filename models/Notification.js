@@ -54,7 +54,7 @@ NotificationSchema.post('save', async function (doc) {
 NotificationSchema.methods.toJSONFor = function (user) {
     return {
         _id: this._id,
-        sender: this.sender,
+        sender: this.sender.toJSONFor(user),
         type: this.type,
         title: this.title,
         body: this.body,
