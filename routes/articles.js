@@ -4,6 +4,7 @@ const router = require('express').Router()
 const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
+const filter = require('../middlewares/filter')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -40,14 +41,6 @@ router.param('comment', async function (req, res, next, id) {
         return next(err)
     }
 })
-
-// embed limit, offset or tag query parameter into req to filter results
-const filter = function (req, res, next) {
-    req.limit = req.query.limit || 20
-    req.offset = req.query.offset || 0
-    req.query = req.query.tag ? { tags: { '$in': [req.query.tag] } } : {}
-    next()
-}
 
 router.get('/', filter, async function (req, res, next) {
     try {

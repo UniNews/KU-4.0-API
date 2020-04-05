@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const User = mongoose.model('User')
 const Notification = mongoose.model('Notification')
 const { check, validationResult } = require('express-validator')
+const filter = require('../middlewares/filter')
 
 // preload notification objects on routes with ':notification'
 router.param('notification', async function (req, res, next, id) {
@@ -35,20 +36,25 @@ router.post('/token', check('token').not().isEmpty().withMessage('token is requi
     }
 })
 
-router.get('/', async function (req, res, next) {
+router.get('/', filter, async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id).populate({
-            path: 'notifications',
-            populate: {
-                path: 'sender'
-            }
-        })
+        const user = await User.findById(req.payload.id)
         if (!user)
             return res.sendStatus(401)
-        const notifications = user.notifications.map(function (notification) {
-            return notification.toJSONFor(user)
+        const limit = req.limit
+        const offset = req.offset
+        const notifications = await Notification.find({ receivers: { '$in': [user._id] } })
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ createdAt: 'desc' })
+            .populate('sender')
+        const notificationsCount = await Notification.count({ receivers: { '$in': [user._id] } })
+        res.status(200).json({
+            notifications: notifications.map(function (notification) {
+                return notification.toJSONFor(user)
+            }),
+            notificationsCount
         })
-        res.status(200).json(notifications)
     } catch (err) {
         return next(err)
     }
