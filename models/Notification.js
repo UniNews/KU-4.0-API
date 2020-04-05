@@ -12,6 +12,9 @@ const NotificationSchema = new mongoose.Schema({
         type: String,
         enum: ['article', 'follower'],
     },
+    redirectId: {
+        type: String,
+    },
     receivers: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User'
@@ -55,6 +58,7 @@ NotificationSchema.methods.toJSONFor = function (user) {
         type: this.type,
         title: this.title,
         body: this.body,
+        redirectId: this.redirectId,
         createdAt: this.createdAt,
         isRead: this.reads.indexOf(user._id) > 1
     }

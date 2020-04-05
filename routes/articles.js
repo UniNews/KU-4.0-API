@@ -428,7 +428,7 @@ router.delete('/:article/comments/:comment', async function (req, res, next) {
         if (req.comment.author._id.toString() === req.payload.id.toString()) {
             req.article.comments.remove(req.comment._id)
             await req.article.save()
-            await Comment.find({ _id: req.comment._id }).remove()
+            await req.comment.remove()
             res.sendStatus(204)
         } else
             res.sendStatus(403)

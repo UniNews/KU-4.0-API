@@ -55,12 +55,14 @@ ArticleSchema.post('save', function (article) {
         const receivers = article.author.followers
         const title = article.title
         const body = article.description
+        const redirectId = article._id
         const notification = new Notification({
             sender,
             type,
             receivers,
             title,
-            body
+            body,
+            redirectId
         })
         notification.save()
     }
