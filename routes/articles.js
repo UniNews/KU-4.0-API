@@ -5,10 +5,19 @@ const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
 
+router.use(async function (req, res, next) {
+    const user = await User.findById(req.payload.id)
+    if (!user)
+        return res.sendStatus(401)
+    req.user = user
+    next()
+})
+
 // preload article objects on routes with ':article'
 router.param('article', async function (req, res, next, id) {
     try {
-        const article = await Article.findById(id).populate('author')
+        const article = await Article.findById(id)
+        // .populate('author')
         if (!article)
             return res.sendStatus(404)
         req.article = article
@@ -53,7 +62,9 @@ router.get('/', filter, async function (req, res, next) {
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
-            articles: articles,
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
             articlesCount: articlesCount
         })
     }
@@ -75,7 +86,9 @@ router.get('/communities', filter, async function (req, res, next) {
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
-            articles: articles,
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
             articlesCount: articlesCount
         })
     }
@@ -97,7 +110,9 @@ router.get('/communities/trending', filter, async function (req, res, next) {
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
-            articles: articles,
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
             articlesCount: articlesCount
         })
     }
@@ -119,7 +134,9 @@ router.get('/news', filter, async function (req, res, next) {
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
-            articles: articles,
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
             articlesCount: articlesCount
         })
     }
@@ -142,7 +159,9 @@ router.get('/news/university', filter, async function (req, res, next) {
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
-            articles: articles,
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
             articlesCount: articlesCount
         })
     }
@@ -165,7 +184,9 @@ router.get('/news/club', filter, async function (req, res, next) {
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
-            articles: articles,
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
             articlesCount: articlesCount
         })
     }
@@ -188,7 +209,9 @@ router.get('/news/lost-found', filter, async function (req, res, next) {
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
-            articles: articles,
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
             articlesCount: articlesCount
         })
     }
@@ -219,13 +242,17 @@ router.get('/recommendations', async function (req, res, next) {
         return res.json([
             {
                 type: 'feed',
-                articles: followingUserArticles,
+                articles: followingUserArticles.map(function (article) {
+                    return article.toJSONFor(req.user)
+                }),
                 articlesCount: followingUserArticles.length
             },
             {
                 type: 'tags',
                 tags: preferenceTags,
-                articles: tagArticles,
+                articles: tagArticles.map(function (article) {
+                    return article.toJSONFor(req.user)
+                }),
                 articlesCount: tagArticles.length
             },
         ])
@@ -238,7 +265,7 @@ router.get('/recommendations', async function (req, res, next) {
 router.get('/:article', function (req, res, next) {
     try {
         const article = req.article
-        return res.json(article)
+        return res.json(article.toJSONFor(req.user))
     }
     catch (err) {
         next(err)
@@ -268,7 +295,7 @@ router.put('/:article', async function (req, res, next) {
                     req.article.imageURL = imageURL
             }
             const updatedArticle = await req.article.save()
-            return res.json(updatedArticle)
+            return res.json(updatedArticle.toJSONFor(req.user))
         }
         else
             return res.sendStatus(403)
@@ -348,7 +375,7 @@ router.post('/', [
         // update user
         user.articles.push(createdArticle._id)
         await user.save()
-        return res.json(createdArticle)
+        return res.json(createdArticle.toJSONFor(req.user))
     }
     catch (err) {
         next(err)
@@ -383,13 +410,16 @@ router.delete('/:article/like', async function (req, res, next) {
 
 router.get('/:article/comments', async function (req, res, next) {
     try {
-        const article = await req.article.populate({
-            path: 'comments',
-            populate: {
-                path: 'author'
-            }
-        }).execPopulate()
-        return res.json(article.comments)
+        const articles = await req.article
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'author'
+                }
+            }).execPopulate()
+        return res.json(articles.comments.map(function (comment) {
+            return comment.toJSONFor(req.user)
+        }))
     }
     catch (err) {
         next(err)
@@ -415,7 +445,7 @@ router.post('/:article/comments',
             // update article
             article.comments.push(comment)
             await article.save()
-            return res.json(createdComment)
+            return res.json(createdComment.toJSONFor(req.user))
         }
         catch (err) {
             next(err)
@@ -445,8 +475,6 @@ router.post('/:article/comments/:comment/like', async function (req, res, next) 
         const comment = req.comment
         if (!user)
             return res.sendStatus(401)
-        if (user._id.toString() !== comment.author._id.toString())
-            return res.sendStatus(403)
         if (comment.article._id.toString() === article._id.toString()) {
             if (comment.likes.indexOf(user._id) === -1) {
                 comment.likes.push(user)

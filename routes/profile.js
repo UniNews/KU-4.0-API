@@ -2,14 +2,18 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const User = mongoose.model('User')
-const { check, validationResult } = require('express-validator')
+
+router.use(async function (req, res, next) {
+    const user = await User.findById(req.payload.id)
+    if (!user)
+        return res.sendStatus(401)
+    req.user = user
+    next()
+})
 
 router.get('/', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
-        return res.json(user)
+        return res.json(req.user)
     }
     catch (err) {
         return next(err)
@@ -18,10 +22,15 @@ router.get('/', async function (req, res, next) {
 
 router.get('/articles', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id).populate('articles')
-        if (!user)
-            return res.sendStatus(401)
-        res.status(200).json(user.articles)
+        const user = await req.user.populate({
+            path: 'articles',
+            populate: {
+                path: 'author'
+            }
+        }).execPopulate()
+        res.status(200).json(user.articles.map(function (article) {
+            return article.toJSONFor(req.user)
+        }))
     } catch (err) {
         return next(err)
     }
@@ -29,10 +38,7 @@ router.get('/articles', async function (req, res, next) {
 
 router.get('/followings', async function (req, res) {
     try {
-        const user = await User.findById(req.payload.id).populate('followings')
-        if (!user)
-            return res.sendStatus(401)
-        res.status(200).json(user.followings)
+        res.status(200).json(req.user.followings)
     } catch (err) {
         return next(err)
     }
@@ -40,10 +46,7 @@ router.get('/followings', async function (req, res) {
 
 router.get('/followers', async function (req, res) {
     try {
-        const user = await User.findById(req.payload.id).populate('followers')
-        if (!user)
-            return res.sendStatus(401)
-        res.status(200).json(user.followers)
+        res.status(200).json(req.user.followers)
     } catch (err) {
         return next(err)
     }
@@ -51,15 +54,13 @@ router.get('/followers', async function (req, res) {
 
 router.put('/', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
+        const user = req.user
         // only update fields that were actually passed
         const displayName = req.body.displayName
         const avatarURL = req.body.avatarURL
         const bio = req.body.bio
         if (typeof displayName !== 'undefined')
-            user.username = displayName
+            req.user.username = displayName
         if (typeof avatarURL !== 'undefined')
             user.email = avatarURL
         if (typeof bio !== 'undefined')

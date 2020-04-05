@@ -158,4 +158,11 @@ UserSchema.methods.unlike = async function (article) {
     }
 }
 
+UserSchema.methods.toJSONFor = function (user) {
+    return {
+        ...this._doc,
+        isFollowing: user.followings.indexOf(this._id) > -1
+    }
+}
+
 mongoose.model('User', UserSchema)

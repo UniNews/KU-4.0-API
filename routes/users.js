@@ -19,7 +19,10 @@ router.param('user', async function (req, res, next, id) {
 
 router.get('/:user', async function (req, res, next) {
     try {
-        return res.json(req.user)
+        const user = await User.findById(req.payload.id)
+        if (!user)
+            return res.sendStatus(401)
+        return res.json(req.user.toJSONFor(user))
     }
     catch (err) {
         return next(err)
@@ -28,8 +31,15 @@ router.get('/:user', async function (req, res, next) {
 
 router.get('/:user/articles', async function (req, res, next) {
     try {
-        const user = await req.user.populate('articles').execPopulate()
-        res.status(200).json(user.articles)
+        const user = await req.user.populate({
+            path: 'articles',
+            populate: {
+                path: 'author'
+            }
+        }).execPopulate()
+        res.status(200).json(user.articles.map(function (article) {
+            return article.toJSONFor(req.user)
+        }))
     } catch (err) {
         return next(err)
     }

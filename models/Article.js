@@ -68,4 +68,20 @@ ArticleSchema.post('save', function (article) {
     }
 })
 
+ArticleSchema.methods.toJSONFor = function (user) {
+    return {
+        title: this.title,
+        description: this.description,
+        articleType: this.articleType,
+        newsType: this.newsType,
+        imageURL: this.imageURL,
+        author: this.author.toJSONFor(user),
+        views: this.views,
+        comments: this.comments,
+        tags: this.tags,
+        likes: this.likes,
+        isLiked: this.likes.indexOf(user._id) > -1
+    }
+}
+
 mongoose.model('Article', ArticleSchema)

@@ -20,4 +20,14 @@ const CommentSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
+CommentSchema.methods.toJSONFor = function (user) {
+    return {
+        _id: this._id,
+        description: this.description,
+        author: this.author.toJSONFor(user),
+        likes: this.likes,
+        isLiked: this.likes.indexOf(user._id) > -1
+    }
+}
+
 mongoose.model('Comment', CommentSchema)
