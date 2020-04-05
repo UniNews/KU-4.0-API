@@ -27,25 +27,6 @@ router.get('/articles', async function (req, res, next) {
     }
 })
 
-router.get('/notifications', async function (req, res, next) {
-    try {
-        const user = await User.findById(req.payload.id).populate({
-            path: 'notifications',
-            populate: {
-                path: 'sender'
-            }
-        })
-        if (!user)
-            return res.sendStatus(401)
-        const notifications = user.notifications.map(function (notification) {
-            return notification.toJSONFor(user)
-        })
-        res.status(200).json(notifications)
-    } catch (err) {
-        return next(err)
-    }
-})
-
 router.get('/followings', async function (req, res) {
     try {
         const user = await User.findById(req.payload.id).populate('followings')
@@ -108,22 +89,6 @@ router.put('/', async function (req, res, next) {
         return res.json(user)
     }
     catch (err) {
-        return next(err)
-    }
-})
-
-router.post('/notificationToken', check('token').not().isEmpty().withMessage('token is required.'), async function (req, res) {
-    try {
-        const errors = validationResult(req)
-        if (!errors.isEmpty())
-            return res.status(422).json({ errors: errors.array().map(error => error.msg) })
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
-        user.tokenNotification = req.body.token
-        await user.save()
-        return res.sendStatus(204)
-    } catch (err) {
         return next(err)
     }
 })

@@ -60,7 +60,7 @@ NotificationSchema.methods.toJSONFor = function (user) {
         body: this.body,
         redirectId: this.redirectId,
         createdAt: this.createdAt,
-        isRead: this.reads.indexOf(user._id) > 1
+        isRead: this.reads.indexOf(user._id) > -1
     }
 }
 
