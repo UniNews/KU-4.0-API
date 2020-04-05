@@ -70,6 +70,7 @@ ArticleSchema.post('save', function (article) {
 
 ArticleSchema.methods.toJSONFor = function (user) {
     return {
+        _id: this._id,
         title: this.title,
         description: this.description,
         articleType: this.articleType,

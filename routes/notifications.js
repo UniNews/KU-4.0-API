@@ -37,7 +37,7 @@ router.post('/token', check('token').not().isEmpty().withMessage('token is requi
 
 router.get('/', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
+        const user = await User.findById(req.payload.id).populate('notifications')
         if (!user)
             return res.sendStatus(401)
         const notifications = user.notifications.map(function (notification) {
