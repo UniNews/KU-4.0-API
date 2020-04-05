@@ -33,22 +33,29 @@ const NotificationSchema = new mongoose.Schema({
     },
 }, { timestamps: true })
 
+NotificationSchema.pre('save', function (next) {
+    this._wasNew = this.isNew
+    next()
+})
+
 NotificationSchema.post('save', async function (doc) {
-    let notifications = []
-    const notification = await doc.populate('receivers').execPopulate()
-    for (const follower of notification.receivers) {
-        follower.notifications.push(doc)
-        follower.save()
-        if (Expo.isExpoPushToken(follower.tokenNotification))
-            notifications.push({
-                to: follower.tokenNotification,
-                sound: 'default',
-                title: notification.title,
-                body: notification.body,
-                data: doc
-            })
+    if (doc._wasNew) {
+        let notifications = []
+        const notification = await doc.populate('receivers').execPopulate()
+        for (const follower of notification.receivers) {
+            follower.notifications.push(doc)
+            follower.save()
+            if (Expo.isExpoPushToken(follower.tokenNotification))
+                notifications.push({
+                    to: follower.tokenNotification,
+                    sound: 'default',
+                    title: notification.title,
+                    body: notification.body,
+                    data: doc
+                })
+        }
+        sendPushNotifications(notifications)
     }
-    sendPushNotifications(notifications)
 })
 
 NotificationSchema.methods.toJSONFor = function (user) {
