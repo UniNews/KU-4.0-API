@@ -514,8 +514,6 @@ router.delete('/:article/comments/:comment/like', async function (req, res, next
         const comment = req.comment
         if (!user)
             return res.sendStatus(401)
-        if (user._id.toString() !== comment.author._id.toString())
-            return res.sendStatus(403)
         if (comment.article._id.toString() === article._id.toString())
             if (comment.likes.indexOf(user._id) > -1) {
                 comment.likes.remove(user)
