@@ -162,6 +162,31 @@ router.get('/news/university', filter, async function (req, res, next) {
     }
 })
 
+router.get('/news/promotion', filter, async function (req, res, next) {
+    try {
+        const query = req.query
+        const limit = req.limit
+        const offset = req.offset
+        query.articleType = 'news'
+        query.newsType = 'promotion'
+        const articles = await Article.find(query)
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ createdAt: 'desc' })
+            .populate('author')
+        const articlesCount = await Article.count(query)
+        return res.json({
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
+            articlesCount: articlesCount
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
 router.get('/news/club', filter, async function (req, res, next) {
     try {
         const query = req.query
