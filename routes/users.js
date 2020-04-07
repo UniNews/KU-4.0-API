@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const User = mongoose.model('User')
+const filter = require('../middlewares/filter')
 
 // preload user objects on routes with ':id'
 router.param('user', async function (req, res, next, id) {
@@ -14,6 +15,31 @@ router.param('user', async function (req, res, next, id) {
     }
     catch (err) {
         return next(err)
+    }
+})
+
+router.get('/', filter, async function (req, res, next) {
+    try {
+        const user = await User.findById(req.payload.id)
+        if (!user)
+            return res.sendStatus(401)
+        const query = req.query
+        const limit = req.limit
+        const offset = req.offset
+        const users = await User.find(query)
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ createdAt: 'desc' })
+        const usersCount = await User.count(query)
+        return res.json({
+            users: users.map(function (user) {
+                return user.toJSONFor(user)
+            }),
+            usersCount: usersCount
+        })
+    }
+    catch (err) {
+        next(err)
     }
 })
 
