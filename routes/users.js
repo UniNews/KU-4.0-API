@@ -18,19 +18,18 @@ router.param('user', async function (req, res, next, id) {
     }
 })
 
-router.get('/', filter, async function (req, res, next) {
+router.get('/', async function (req, res, next) {
     try {
         const user = await User.findById(req.payload.id)
         if (!user)
             return res.sendStatus(401)
-        const query = req.query
         const limit = req.limit
         const offset = req.offset
-        const users = await User.find(query)
+        const users = await User.find()
             .limit(Number(limit))
             .skip(Number(offset))
             .sort({ createdAt: 'desc' })
-        const usersCount = await User.count(query)
+        const usersCount = await User.count()
         return res.json({
             users: users.map(function (user) {
                 return user.toJSONFor(user)
@@ -55,35 +54,71 @@ router.get('/:user', async function (req, res, next) {
     }
 })
 
-router.get('/:user/articles', async function (req, res, next) {
+router.get('/:user/articles', filter, async function (req, res, next) {
     try {
+        const myUser = await User.findById(req.payload.id)
+        if (!myUser)
+            return res.sendStatus(401)
+        const limit = req.limit
+        const offset = req.offset
         const user = await req.user.populate({
             path: 'articles',
             populate: {
                 path: 'author'
             }
         }).execPopulate()
-        res.status(200).json(user.articles.map(function (article) {
-            return article.toJSONFor(req.user)
-        }))
+        const articles = user.articles.slice(Number(offset)).slice(0, Number(limit))
+        const articlesCount = user.articles.length
+        res.status(200).json(
+            {
+                articles: articles.map(function (article) {
+                    return article.toJSONFor(myUser)
+                }),
+                articlesCount
+            }
+        )
     } catch (err) {
         return next(err)
     }
 })
 
-router.get('/:user/followings', async function (req, res, next) {
+router.get('/:user/followings', filter, async function (req, res, next) {
     try {
+        const myUser = await User.findById(req.payload.id)
+        if (!myUser)
+            return res.sendStatus(401)
+        const limit = req.limit
+        const offset = req.offset
         const user = await req.user.populate('followings').execPopulate()
-        res.status(200).json(user.followings)
+        const followings = user.followings.slice(Number(offset)).slice(0, Number(limit))
+        const followingsCount = user.followings.length
+        res.status(200).json({
+            followings: followings.map(function (followings) {
+                return followings.toJSONFor(myUser)
+            }),
+            followingsCount
+        })
     } catch (err) {
         return next(err)
     }
 })
 
-router.get('/:user/followers', async function (req, res, next) {
+router.get('/:user/followers', filter, async function (req, res, next) {
     try {
+        const myUser = await User.findById(req.payload.id)
+        if (!myUser)
+            return res.sendStatus(401)
+        const limit = req.limit
+        const offset = req.offset
         const user = await req.user.populate('followers').execPopulate()
-        res.status(200).json(user.followers)
+        const followers = user.followers.slice(Number(offset)).slice(0, Number(limit))
+        const followersCount = user.followers.length
+        res.status(200).json({
+            followers: followers.map(function (followers) {
+                return followers.toJSONFor(myUser)
+            }),
+            followersCount
+        })
     } catch (err) {
         return next(err)
     }
