@@ -21,37 +21,37 @@ router.get('/', async function (req, res, next) {
     }
 })
 
-router.get('/articles', async function (req, res, next) {
-    try {
-        const user = await req.user.populate({
-            path: 'articles',
-            populate: {
-                path: 'author'
-            }
-        }).execPopulate()
-        res.status(200).json(user.articles.map(function (article) {
-            return article.toJSONFor(req.user)
-        }))
-    } catch (err) {
-        return next(err)
-    }
-})
+// router.get('/articles', async function (req, res, next) {
+//     try {
+//         const user = await req.user.populate({
+//             path: 'articles',
+//             populate: {
+//                 path: 'author'
+//             }
+//         }).execPopulate()
+//         res.status(200).json(user.articles.map(function (article) {
+//             return article.toJSONFor(req.user)
+//         }))
+//     } catch (err) {
+//         return next(err)
+//     }
+// })
 
-router.get('/followings', async function (req, res) {
-    try {
-        res.status(200).json(req.user.followings)
-    } catch (err) {
-        return next(err)
-    }
-})
+// router.get('/followings', async function (req, res) {
+//     try {
+//         res.status(200).json(req.user.followings)
+//     } catch (err) {
+//         return next(err)
+//     }
+// })
 
-router.get('/followers', async function (req, res) {
-    try {
-        res.status(200).json(req.user.followers)
-    } catch (err) {
-        return next(err)
-    }
-})
+// router.get('/followers', async function (req, res) {
+//     try {
+//         res.status(200).json(req.user.followers)
+//     } catch (err) {
+//         return next(err)
+//     }
+// })
 
 router.put('/',
     [
@@ -75,12 +75,9 @@ router.put('/',
             const displayName = req.body.displayName
             const avatarURL = req.body.avatarURL
             const bio = req.body.bio
-            if (typeof displayName !== 'undefined')
-                user.displayName = displayName
-            if (typeof avatarURL !== 'undefined')
-                user.avatarURL = avatarURL
-            if (typeof bio !== 'undefined')
-                user.bio = bio
+            user.displayName = displayName || user.displayName
+            user.avatarURL = avatarURL || user.avatarURL
+            user.bio = bio || user.bio
             // if the role is store or admin, update additional fields...
             if (user.role != 'user') {
                 const email = req.body.email
@@ -89,18 +86,12 @@ router.put('/',
                 const mobilePhone = req.body.mobilePhone
                 const tags = req.body.tags
                 const contacts = req.body.contacts
-                if (typeof email !== 'undefined')
-                    user.email = email
-                if (typeof firstName !== 'undefined')
-                    user.firstName = firstName
-                if (typeof lastName !== 'undefined')
-                    user.lastName = lastName
-                if (typeof mobilePhone !== 'undefined')
-                    user.mobilePhone = mobilePhone
-                if (typeof tags !== 'undefined')
-                    user.tags = tags
-                if (typeof contacts !== 'undefined')
-                    user.contacts = contacts
+                user.email = email || user.email
+                user.firstName = firstName || user.firstName
+                user.lastName = lastName || user.lastName
+                user.mobilePhone = mobilePhone || user.mobilePhone
+                user.tags = tags || user.tags
+                user.contacts = contacts || user.contacts
             }
             await user.save()
             return res.json(user)
