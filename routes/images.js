@@ -22,8 +22,10 @@ router.post('/', (req, res, next) => {
         if (err)
             res.status(500).end()
         else {
-            res.setHeader('Location', '/images/' + req.file.filename)
-            res.status(201).end()
+            // res.setHeader('Location', '/images/' + req.file.filename)
+            res.json({
+                uri: '/images/' + req.file.filename
+            })
         }
     })
 })
