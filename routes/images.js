@@ -22,12 +22,12 @@ router.post('/', (req, res, next) => {
         upload(req, res, function (err) {
             if (err)
                 res.status(500).end()
-            else {
-                // res.setHeader('Location', '/images/' + req.file.filename)
+            else if (req.file)
                 res.json({
                     uri: '/images/' + req.file.filename
                 })
-            }
+            else
+                res.status(422).json({ errors: 'image must be a file of type: jpeg, png, jpg' })
         })
     }
     catch (e) {
