@@ -18,16 +18,21 @@ const upload = multer({ // multer settings for single upload
 }).single('image')
 
 router.post('/', (req, res, next) => {
-    upload(req, res, function (err) {
-        if (err)
-            res.status(500).end()
-        else {
-            // res.setHeader('Location', '/images/' + req.file.filename)
-            res.json({
-                uri: '/images/' + req.file.filename
-            })
-        }
-    })
+    try {
+        upload(req, res, function (err) {
+            if (err)
+                res.status(500).end()
+            else {
+                // res.setHeader('Location', '/images/' + req.file.filename)
+                res.json({
+                    uri: '/images/' + req.file.filename
+                })
+            }
+        })
+    }
+    catch (e) {
+        res.status(500).end()
+    }
 })
 
 router.get('/:filename', async (req, res) => {
