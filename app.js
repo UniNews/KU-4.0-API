@@ -15,6 +15,7 @@ require('./models/Article')
 require('./models/User')
 require('./configs/passport')
 require('./models/Comment')
+require('./models/Report')
 app.use(require('./routes'))
 
 app.use(function (err, req, res, next) {
