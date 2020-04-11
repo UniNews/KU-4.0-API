@@ -80,11 +80,24 @@ router.post('/',[
 
 router.get('/:report', async function (req, res, next) {
     try {
-        console.log('sd')
         const report = req.report.toJSONFor(req.user)
         return res.json({
             report
         })
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+router.delete('/:report', async function (req, res, next) {
+    try {
+        if (req.user.role === 'admin') {
+            await req.report.remove()
+            return res.sendStatus(204)
+        }
+        else
+            return res.sendStatus(403)
     }
     catch (err) {
         next(err)
