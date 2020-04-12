@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const User = mongoose.model('User')
 const Notification = mongoose.model('Notification')
 const { check, validationResult } = require('express-validator')
-const filter = require('../middlewares/filter')
+const { newsFilter } = require('../middlewares/filter')
 
 // preload notification objects on routes with ':notification'
 router.param('notification', async function (req, res, next, id) {
@@ -36,7 +36,7 @@ router.post('/token', check('token').not().isEmpty().withMessage('token is requi
     }
 })
 
-router.get('/', filter, async function (req, res, next) {
+router.get('/', newsFilter, async function (req, res, next) {
     try {
         const user = await User.findById(req.payload.id)
         if (!user)

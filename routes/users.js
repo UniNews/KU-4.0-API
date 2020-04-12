@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const User = mongoose.model('User')
-const filter = require('../middlewares/filter')
+const { userFilter } = require('../middlewares/filter')
 const { check, validationResult } = require('express-validator')
 
 // preload user objects on routes with ':id'
@@ -19,18 +19,19 @@ router.param('user', async function (req, res, next, id) {
     }
 })
 
-router.get('/', async function (req, res, next) {
+router.get('/', userFilter, async function (req, res, next) {
     try {
         const user = await User.findById(req.payload.id)
         if (!user)
             return res.sendStatus(401)
+        const query = req.query
         const limit = req.limit
         const offset = req.offset
-        const users = await User.find()
+        const users = await User.find(query)
             .limit(Number(limit))
             .skip(Number(offset))
             .sort({ createdAt: 'desc' })
-        const usersCount = await User.count()
+        const usersCount = await User.count(query)
         return res.json({
             users: users.map(function (user) {
                 return user.toJSONFor(user)
@@ -55,7 +56,7 @@ router.get('/:user', async function (req, res, next) {
     }
 })
 
-router.get('/:user/articles', filter, async function (req, res, next) {
+router.get('/:user/articles', userFilter, async function (req, res, next) {
     try {
         const myUser = await User.findById(req.payload.id)
         if (!myUser)
@@ -83,7 +84,7 @@ router.get('/:user/articles', filter, async function (req, res, next) {
     }
 })
 
-router.get('/:user/followings', filter, async function (req, res, next) {
+router.get('/:user/followings', userFilter, async function (req, res, next) {
     try {
         const myUser = await User.findById(req.payload.id)
         if (!myUser)
@@ -104,7 +105,7 @@ router.get('/:user/followings', filter, async function (req, res, next) {
     }
 })
 
-router.get('/:user/followers', filter, async function (req, res, next) {
+router.get('/:user/followers', userFilter, async function (req, res, next) {
     try {
         const myUser = await User.findById(req.payload.id)
         if (!myUser)

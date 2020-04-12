@@ -4,7 +4,7 @@ const router = require('express').Router()
 const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
-const filter = require('../middlewares/filter')
+const { newsFilter } = require('../middlewares/filter')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -42,7 +42,7 @@ router.param('comment', async function (req, res, next, id) {
     }
 })
 
-router.get('/', filter, async function (req, res, next) {
+router.get('/', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -65,7 +65,7 @@ router.get('/', filter, async function (req, res, next) {
     }
 })
 
-router.get('/communities', filter, async function (req, res, next) {
+router.get('/communities', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -89,7 +89,7 @@ router.get('/communities', filter, async function (req, res, next) {
     }
 })
 
-router.get('/communities/trending', filter, async function (req, res, next) {
+router.get('/communities/trending', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -113,7 +113,7 @@ router.get('/communities/trending', filter, async function (req, res, next) {
     }
 })
 
-router.get('/news', filter, async function (req, res, next) {
+router.get('/news', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -137,7 +137,7 @@ router.get('/news', filter, async function (req, res, next) {
     }
 })
 
-router.get('/news/university', filter, async function (req, res, next) {
+router.get('/news/university', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -162,7 +162,7 @@ router.get('/news/university', filter, async function (req, res, next) {
     }
 })
 
-router.get('/news/promotion', filter, async function (req, res, next) {
+router.get('/news/promotion', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -187,7 +187,7 @@ router.get('/news/promotion', filter, async function (req, res, next) {
     }
 })
 
-router.get('/news/club', filter, async function (req, res, next) {
+router.get('/news/club', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -212,7 +212,7 @@ router.get('/news/club', filter, async function (req, res, next) {
     }
 })
 
-router.get('/news/lost-found', filter, async function (req, res, next) {
+router.get('/news/lost-found', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
         const limit = req.limit
@@ -340,13 +340,13 @@ router.delete('/:article', async function (req, res, next) {
 })
 
 router.post('/', [
-    check('description').isLength({ min: 5, max: 1000 }).withMessage('description must be between 5 and 1000 chars long.'),
+    check('description').isLength({ min: 1, max: 1000 }).withMessage('description must be between 5 and 1000 chars long.'),
     check('tags').optional().isArray().withMessage('tags must be an array.'),
     check('articleType').isIn(['community', 'news']).withMessage('articleType must be news or community.'),
     oneOf([
         [
             check('articleType').equals('news'),
-            check('title').isLength({ min: 5, max: 100 }).withMessage('title must be between 5 and 100 chars long.'),
+            check('title').isLength({ min: 1, max: 100 }).withMessage('title must be between 5 and 100 chars long.'),
             check('newsType').isIn(['club', 'promotion', 'lost-found', 'university']).withMessage('newsType must be club, promotion, lost-found or university.'),
             check('imageURL').isURL().withMessage('imageURL must be an URL.')
         ],
