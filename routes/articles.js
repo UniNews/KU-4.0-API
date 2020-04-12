@@ -472,7 +472,7 @@ router.post('/:article/comments',
 
 router.delete('/:article/comments/:comment', async function (req, res, next) {
     try {
-        if (req.comment.author._id.toString() === req.payload.id.toString()) {
+        if (req.user.role === 'admin' || req.comment.author._id.toString() === req.payload.id.toString()) {
             req.article.comments.remove(req.comment._id)
             await req.article.save()
             await req.comment.remove()
