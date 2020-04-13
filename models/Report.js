@@ -11,12 +11,13 @@ const ReportSchema = new mongoose.Schema({
         ref: 'User'
     },
     postDestination: {
-        type:Object,
-        required:true
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     },
     type: {
         type: String,
-        enum:['articles','comments']
+        enum: ['article', 'comment'],
+        required: true
     }
 }, { timestamps: true })
 
@@ -25,8 +26,8 @@ ReportSchema.methods.toJSONFor = function (user) {
         _id: this._id,
         description: this.description,
         author: this.author.toJSONFor(user),
-        postDestination:this.postDestination,
-        type:this.type,
+        postDestination: this.postDestination,
+        type: this.type,
         createdAt: this.createdAt,
     }
 }

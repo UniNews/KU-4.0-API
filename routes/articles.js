@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { check, oneOf, validationResult } = require('express-validator')
+const { body, oneOf, validationResult } = require('express-validator')
 const router = require('express').Router()
 const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
@@ -340,18 +340,18 @@ router.delete('/:article', async function (req, res, next) {
 })
 
 router.post('/', [
-    check('description').isLength({ min: 1, max: 1000 }).withMessage('description must be between 5 and 1000 chars long.'),
-    check('tags').optional().isArray().withMessage('tags must be an array.'),
-    check('articleType').isIn(['community', 'news']).withMessage('articleType must be news or community.'),
+    body('description').isLength({ min: 1, max: 1000 }).withMessage('description must be between 1 and 1000 chars long.'),
+    body('tags').optional().isArray().withMessage('tags must be an array.'),
+    body('articleType').isIn(['community', 'news']).withMessage('articleType must be news or community.'),
     oneOf([
         [
-            check('articleType').equals('news'),
-            check('title').isLength({ min: 1, max: 100 }).withMessage('title must be between 5 and 100 chars long.'),
-            check('newsType').isIn(['club', 'promotion', 'lost-found', 'university']).withMessage('newsType must be club, promotion, lost-found or university.'),
-            check('imageURL').isURL().withMessage('imageURL must be an URL.')
+            body('articleType').equals('news'),
+            body('title').isLength({ min: 1, max: 100 }).withMessage('title must be between 1 and 100 chars long.'),
+            body('newsType').isIn(['club', 'promotion', 'lost-found', 'university']).withMessage('newsType must be club, promotion, lost-found or university.'),
+            body('imageURL').isURL().withMessage('imageURL must be an URL.')
         ],
         [
-            check('articleType').equals('community')
+            body('articleType').equals('community')
         ]
     ])
 ], async function (req, res, next) {
@@ -444,7 +444,7 @@ router.get('/:article/comments', async function (req, res, next) {
 })
 
 router.post('/:article/comments',
-    check('description').isLength({ min: 1, max: 200 }).withMessage('description must be between 1 and 200 chars long.'),
+    body('description').isLength({ min: 1, max: 200 }).withMessage('description must be between 1 and 200 chars long.'),
     async function (req, res, next) {
         try {
             const user = await User.findById(req.payload.id)

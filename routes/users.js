@@ -3,7 +3,7 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const User = mongoose.model('User')
 const { userFilter } = require('../middlewares/filter')
-const { check, validationResult } = require('express-validator')
+const { body, validationResult } = require('express-validator')
 
 // preload user objects on routes with ':id'
 router.param('user', async function (req, res, next, id) {
@@ -196,15 +196,15 @@ router.delete('/:user/ban', async function (req, res, next) {
 
 router.put('/:user',
     [
-        check('displayName').optional().isLength({ min: 3, max: 20 }).withMessage('displayName must be between 3 and 20 chars long.'),
-        check('avatarURL').optional().isURL().withMessage('avatarURL must be an URL.'),
-        check('bio').optional(),
-        check('email').optional().isEmail().withMessage('invalid email.'),
-        check('firstName').optional(),
-        check('lastName').optional(),
-        check('mobilePhone').optional().isNumeric().withMessage('mobilePhone must be number only.'),
-        check('tags').optional().isArray().withMessage('tags must be an array.'),
-        check('contacts').optional(),
+        body('displayName').optional().isLength({ min: 3, max: 20 }).withMessage('displayName must be between 3 and 20 chars long.'),
+        body('avatarURL').optional().isURL().withMessage('avatarURL must be an URL.'),
+        body('bio').optional(),
+        body('email').optional().isEmail().withMessage('invalid email.'),
+        body('firstName').optional(),
+        body('lastName').optional(),
+        body('mobilePhone').optional().isNumeric().withMessage('mobilePhone must be number only.'),
+        body('tags').optional().isArray().withMessage('tags must be an array.'),
+        body('contacts').optional(),
     ],
     async function (req, res, next) {
         try {

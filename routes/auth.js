@@ -3,11 +3,11 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const User = mongoose.model('User')
 const passport = require('passport')
-const { check, validationResult } = require('express-validator')
+const { body, validationResult } = require('express-validator')
 
 router.post('/signin', [
-    check('username').isLength({ min: 5, max: 12 }).withMessage('username must be between 5 and 12 chars long.'),
-    check('password').isLength({ min: 5, max: 12 }).withMessage('password must be between 5 and 12 chars long.'),
+    body('username').isLength({ min: 5, max: 12 }).withMessage('username must be between 5 and 12 chars long.'),
+    body('password').isLength({ min: 5, max: 12 }).withMessage('password must be between 5 and 12 chars long.'),
 ], function (req, res, next) {
     const errors = validationResult(req)
     if (!errors.isEmpty())
@@ -63,9 +63,9 @@ router.post('/signin/google', function (req, res, next) {
 })
 
 router.post('/signup', [
-    check('username').isLength({ min: 5, max: 12 }).withMessage('username must be between 5 and 12 chars long.'),
-    check('password').isLength({ min: 5, max: 12 }).withMessage('password must be between 5 and 12 chars long.'),
-    check('displayName').isLength({ min: 3, max: 20 }).withMessage('displayName must be between 3 and 20 chars long.'),
+    body('username').isLength({ min: 5, max: 12 }).withMessage('username must be between 5 and 12 chars long.'),
+    body('password').isLength({ min: 5, max: 12 }).withMessage('password must be between 5 and 12 chars long.'),
+    body('displayName').isLength({ min: 3, max: 20 }).withMessage('displayName must be between 3 and 20 chars long.'),
 ], async function (req, res, next) {
     try {
         const errors = validationResult(req)

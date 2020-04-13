@@ -5,7 +5,7 @@ const Report = mongoose.model('Report')
 const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
-const { check, validationResult } = require('express-validator')
+const { validationResult, body } = require('express-validator')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -14,7 +14,7 @@ router.use(async function (req, res, next) {
     req.user = user
     next()
 })
-// preload user objects on routes with ':id'
+
 router.param('report', async function (req, res, next, id) {
     try {
         const report = await Report.findById(id).populate('author')
@@ -46,10 +46,10 @@ router.get('/', async function (req, res, next) {
     }
 })
 
-router.post('/',[
-    check('description').isLength({ min: 5, max: 1000 }).withMessage('description must be between 5 and 1000 chars long.'),
-    check('type').isIn(['articles','comments']).withMessage('type must be articles or comments.'),
-    check('destinationId').matches(/^[0-9a-fA-F]{24}$/)
+router.post('/', [
+    body('description').isLength({ min: 1, max: 1000 }).withMessage('description must be between 1 and 1000 chars long.'),
+    body('type').isIn(['article', 'comment']).withMessage('type must be article or comment.'),
+    body('destinationId').matches(/^[0-9a-fA-F]{24}$/)
 ], async function (req, res, next) {
     try {
         const errors = validationResult(req)
@@ -60,16 +60,18 @@ router.post('/',[
         const destinationId = req.body.destinationId
         const author = req.user
         let postDestination
-        if(type === 'comments')
-            postDestination = await Comment.findOne({ _id:destinationId })
-        else (type === 'articles')
-            postDestination = await Article.findOne({ _id:destinationId })
+        if (type === 'comment')
+            postDestination = await Comment.findOne({ _id: destinationId })
+        else if (type === 'article')
+            postDestination = await Article.findOne({ _id: destinationId })
+        if (!postDestination)
+            return res.sendStatus(404)
         const report = new Report({
-                description,
-                type,
-                author,
-                postDestination,
-            })
+            description,
+            type,
+            author,
+            postDestination,
+        })
         const createdResponse = await report.save()
         return res.json(createdResponse.toJSONFor(req.user))
     }
