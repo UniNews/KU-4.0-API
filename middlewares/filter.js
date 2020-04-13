@@ -12,6 +12,8 @@ const newsFilter = async function (req, res, next) {
         const author = await User.findOne({ displayName: req.query.author })
         query.author = author ? author._id : null
     }
+    if (req.query.description)
+        query.description = { $regex: req.query.description, $options: 'i' }
     req.query = query
     next()
 }
