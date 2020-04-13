@@ -22,10 +22,8 @@ const userFilter = async function (req, res, next) {
     req.limit = req.query.limit || 20
     req.offset = req.query.offset || 0
     const query = {}
-    if (req.query.name) {
-        const user = await User.findOne({ displayName: req.query.name })
-        query.displayName = user ? user.displayName : null
-    }
+    if (req.query.name)
+        query.displayName = { $regex: req.query.name, $options: 'i' }
     req.query = query
     next()
 }
