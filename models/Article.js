@@ -29,6 +29,7 @@ const ArticleSchema = new mongoose.Schema({
     views: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User',
+        timestamps: true
     }],
     comments: [{
         type: mongoose.Schema.Types.ObjectId,

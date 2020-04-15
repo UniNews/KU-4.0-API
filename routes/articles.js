@@ -4,7 +4,7 @@ const router = require('express').Router()
 const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
-const { newsFilter } = require('../middlewares/filter')
+const { newsFilter, userFilter } = require('../middlewares/filter')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -239,10 +239,7 @@ router.get('/news/lost-found', newsFilter, async function (req, res, next) {
 
 router.get('/recommendations', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
-        const tags = await Article.aggregate([{ $match: { likes: { $in: [user._id] } } }, { $unwind: '$tags' }, { $sortByCount: '$tags' }, { $limit: 2 }])
+        const tags = await Article.aggregate([{ $match: { likes: { $in: [req.user._id] } } }, { $unwind: '$tags' }, { $sortByCount: '$tags' }, { $limit: 2 }])
         const preferenceTags = tags.map(function (tag) {
             return tag._id
         })
@@ -279,10 +276,40 @@ router.get('/recommendations', async function (req, res, next) {
     }
 })
 
-router.get('/:article', function (req, res, next) {
+router.get('/:article', async function (req, res, next) {
     try {
         const article = req.article
+        if (article.views.indexOf(req.user._id) === -1) {
+            article.views.push(req.user)
+            await article.save()
+        }
         return res.json(article.toJSONFor(req.user))
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+router.get('/:article/views', userFilter, async function (req, res, next) {
+    try {
+        const limit = req.limit
+        const offset = req.offset
+        const articles = await req.article.populate({
+            path: 'views',
+            options: {
+                sort: {
+                    createdAt: 'desc'
+                }
+            }
+        }).execPopulate()
+        const views = articles.views.slice(Number(offset)).slice(0, Number(limit))
+        const viewsCount = articles.views.length
+        return res.status(200).json({
+            views: views.map(function (view) {
+                return view.toJSONFor(req.user)
+            }),
+            viewsCount
+        })
     }
     catch (err) {
         next(err)
@@ -291,10 +318,7 @@ router.get('/:article', function (req, res, next) {
 
 router.put('/:article', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
-        if (req.article.author._id.toString() === user._id.toString()) {
+        if (req.user.role === 'admin' || req.article.author._id.toString() === user._id.toString()) {
             // only update fields that were actually passed
             const description = req.body.description
             const tags = req.body.tags
@@ -324,10 +348,7 @@ router.put('/:article', async function (req, res, next) {
 
 router.delete('/:article', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
-        if (req.article.author._id.toString() === user._id.toString()) {
+        if (req.article.author._id.toString() === req.user._id.toString()) {
             await req.article.remove()
             return res.sendStatus(204)
         }
@@ -401,10 +422,7 @@ router.post('/', [
 
 router.post('/:article/like', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
-        await user.like(req.article)
+        await req.user.like(req.article)
         return res.sendStatus(204)
     }
     catch (err) {
@@ -414,10 +432,7 @@ router.post('/:article/like', async function (req, res, next) {
 
 router.delete('/:article/like', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
-            return res.sendStatus(401)
-        await user.unlike(req.article)
+        await req.user.unlike(req.article)
         return res.sendStatus(204)
     }
     catch (err) {
@@ -447,11 +462,8 @@ router.post('/:article/comments',
     body('description').isLength({ min: 1, max: 200 }).withMessage('description must be between 1 and 200 chars long.'),
     async function (req, res, next) {
         try {
-            const user = await User.findById(req.payload.id)
-            if (!user)
-                return res.sendStatus(401)
             const article = req.article
-            const author = user
+            const author = req.user
             const description = req.body.description
             const comment = new Comment({
                 description,
@@ -487,14 +499,11 @@ router.delete('/:article/comments/:comment', async function (req, res, next) {
 
 router.post('/:article/comments/:comment/like', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
         const article = req.article
         const comment = req.comment
-        if (!user)
-            return res.sendStatus(401)
         if (comment.article._id.toString() === article._id.toString()) {
-            if (comment.likes.indexOf(user._id) === -1) {
-                comment.likes.push(user)
+            if (comment.likes.indexOf(req.user._id) === -1) {
+                comment.likes.push(req.user)
                 await comment.save()
             }
             return res.sendStatus(204)
@@ -509,14 +518,11 @@ router.post('/:article/comments/:comment/like', async function (req, res, next) 
 
 router.delete('/:article/comments/:comment/like', async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
         const article = req.article
         const comment = req.comment
-        if (!user)
-            return res.sendStatus(401)
         if (comment.article._id.toString() === article._id.toString())
-            if (comment.likes.indexOf(user._id) > -1) {
-                comment.likes.remove(user)
+            if (comment.likes.indexOf(req.user._id) > -1) {
+                comment.likes.remove(req.user)
                 await comment.save()
                 return res.sendStatus(204)
             }
