@@ -478,6 +478,9 @@ router.post('/:article/comments',
                 article
             })
             const createdComment = await comment.save()
+            // update article
+            article.comments.push(comment)
+            await article.save()
             return res.json(createdComment.toJSONFor(req.user))
         }
         catch (err) {

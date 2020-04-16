@@ -31,10 +31,10 @@ const ArticleSchema = new mongoose.Schema({
         ref: 'User',
         timestamps: true
     }],
-    // comments: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Comment'
-    // }],
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment'
+    }],
     tags: [
         { type: String }
     ],
