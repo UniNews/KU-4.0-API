@@ -9,8 +9,11 @@ const { FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLI
 passport.use(new LocalStrategy(async function (username, password, done) {
     try {
         const user = await User.findOne({ username: username })
-        if (!user || !user.comparePassword(password))
-            return done(null, false, { errors: 'username or password is invalid' })
+        if (!user)
+            return done(null, false, { errors: 'username is invalid' })
+        const isMatch = await user.comparePassword(password)
+        if (!isMatch)
+            return done(null, false, { errors: 'password is invalid' })
         return done(null, user)
     }
     catch (err) {

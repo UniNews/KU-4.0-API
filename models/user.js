@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema({
     },
     password: { // for email login type
         type: String,
-        select: false
+        // select: false
     },
     displayName: {
         type: String,
@@ -107,8 +107,8 @@ UserSchema.methods.setPassword = async function (password) {
     this.password = hash
 }
 
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password)
+UserSchema.methods.comparePassword = function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password)
 }
 
 UserSchema.methods.generateJWT = function () {
