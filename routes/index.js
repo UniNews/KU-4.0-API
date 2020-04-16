@@ -8,6 +8,7 @@ router.use('/notifications', auth.required, require('./notifications'))
 router.use('/users', auth.required, require('./users'))
 router.use('/articles', auth.required, require('./articles'))
 router.use('/reports', auth.required, require('./report'))
+router.use('/comments', auth.required, require('./comments'))
 router.use('/images', require('./images'))
 
 router.use(function (err, req, res, next) {

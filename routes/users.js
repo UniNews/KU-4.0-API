@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const User = mongoose.model('User')
 const { userFilter } = require('../middlewares/filter')
 const { body, validationResult } = require('express-validator')
+const Article = mongoose.model('Article')
 
 // preload user objects on routes with ':id'
 router.param('user', async function (req, res, next, id) {
@@ -58,23 +59,18 @@ router.get('/:user', async function (req, res, next) {
 
 router.get('/:user/articles', userFilter, async function (req, res, next) {
     try {
-        const myUser = await User.findById(req.payload.id)
-        if (!myUser)
-            return res.sendStatus(401)
         const limit = req.limit
         const offset = req.offset
-        const user = await req.user.populate({
-            path: 'articles',
-            populate: {
-                path: 'author'
-            }
-        }).execPopulate()
-        const articles = user.articles.slice(Number(offset)).slice(0, Number(limit))
-        const articlesCount = user.articles.length
+        const articles = await Article.find({ author: req.user._id })
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ createdAt: 'desc' })
+            .populate('author')
+        const articlesCount = await Article.count({ author: req.user._id })
         res.status(200).json(
             {
                 articles: articles.map(function (article) {
-                    return article.toJSONFor(myUser)
+                    return article.toJSONFor(req.user)
                 }),
                 articlesCount
             }
@@ -89,13 +85,18 @@ router.get('/:user/followings', userFilter, async function (req, res, next) {
         const myUser = await User.findById(req.payload.id)
         if (!myUser)
             return res.sendStatus(401)
-        const limit = req.limit
-        const offset = req.offset
-        const user = await req.user.populate('followings').execPopulate()
-        const followings = user.followings.slice(Number(offset)).slice(0, Number(limit))
-        const followingsCount = user.followings.length
+        const limit = Number(req.limit)
+        const offset = Number(req.offset)
+        const followingsCount = req.user.followings.length
+        const user = await req.user.populate({
+            path: 'followings',
+            options: {
+                limit: limit,
+                skip: offset
+            }
+        }).execPopulate()
         res.status(200).json({
-            followings: followings.map(function (followings) {
+            followings: user.followings.map(function (followings) {
                 return followings.toJSONFor(myUser)
             }),
             followingsCount
@@ -110,13 +111,18 @@ router.get('/:user/followers', userFilter, async function (req, res, next) {
         const myUser = await User.findById(req.payload.id)
         if (!myUser)
             return res.sendStatus(401)
-        const limit = req.limit
-        const offset = req.offset
-        const user = await req.user.populate('followers').execPopulate()
-        const followers = user.followers.slice(Number(offset)).slice(0, Number(limit))
-        const followersCount = user.followers.length
+        const limit = Number(req.limit)
+        const offset = Number(req.offset)
+        const followersCount = req.user.followers.length
+        const user = await req.user.populate({
+            path: 'followers',
+            options: {
+                limit: limit,
+                skip: offset
+            }
+        }).execPopulate()
         res.status(200).json({
-            followers: followers.map(function (followers) {
+            followers: user.followers.map(function (followers) {
                 return followers.toJSONFor(myUser)
             }),
             followersCount

@@ -66,7 +66,7 @@ router.post('/:notification/view', async function (req, res, next) {
         if (!user)
             return res.sendStatus(401)
         const notification = req.notification
-        if (user.notifications.indexOf(notification._id) > -1) {
+        if (notification.receivers.indexOf(user._id) > -1) {
             notification.reads.push(user._id)
             await notification.save()
             res.sendStatus(204)

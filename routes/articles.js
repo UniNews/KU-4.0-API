@@ -348,7 +348,7 @@ router.put('/:article', async function (req, res, next) {
 
 router.delete('/:article', async function (req, res, next) {
     try {
-        if (req.article.author._id.toString() === req.user._id.toString()) {
+        if (req.user.role === 'admin' || req.article.author._id.toString() === req.user._id.toString()) {
             await req.article.remove()
             return res.sendStatus(204)
         }
@@ -410,9 +410,6 @@ router.post('/', [
                 tags
             })
         const createdArticle = await article.save()
-        // update user
-        user.articles.push(createdArticle._id)
-        await user.save()
         return res.json(createdArticle.toJSONFor(req.user))
     }
     catch (err) {
@@ -422,7 +419,10 @@ router.post('/', [
 
 router.post('/:article/like', async function (req, res, next) {
     try {
-        await req.user.like(req.article)
+        if (req.article.likes.indexOf(req.user._id) === -1) {
+            req.article.likes.push(req.user)
+            await req.article.save()
+        }
         return res.sendStatus(204)
     }
     catch (err) {
@@ -432,7 +432,10 @@ router.post('/:article/like', async function (req, res, next) {
 
 router.delete('/:article/like', async function (req, res, next) {
     try {
-        await req.user.unlike(req.article)
+        if (req.article.likes.indexOf(req.user._id) > -1) {
+            req.article.likes.remove(req.user)
+            await req.article.save()
+        }
         return res.sendStatus(204)
     }
     catch (err) {
@@ -442,14 +445,18 @@ router.delete('/:article/like', async function (req, res, next) {
 
 router.get('/:article/comments', async function (req, res, next) {
     try {
-        const articles = await req.article
-            .populate({
-                path: 'comments',
-                populate: {
-                    path: 'author'
-                }
-            }).execPopulate()
-        return res.json(articles.comments.map(function (comment) {
+        const comments = await Comment.find({ article: req.article._id }).populate([{
+            path: 'author',
+        },
+        {
+            path: 'article',
+            populate: {
+                path: 'author'
+            }
+        }]).sort({ createdAt: 'desc' })
+        if (!comments)
+            return res.sendStatus(404)
+        return res.json(comments.map(function (comment) {
             return comment.toJSONFor(req.user)
         }))
     }
@@ -471,66 +478,11 @@ router.post('/:article/comments',
                 article
             })
             const createdComment = await comment.save()
-            // update article
-            article.comments.push(comment)
-            await article.save()
             return res.json(createdComment.toJSONFor(req.user))
         }
         catch (err) {
             next(err)
         }
     })
-
-
-router.delete('/:article/comments/:comment', async function (req, res, next) {
-    try {
-        if (req.user.role === 'admin' || req.comment.author._id.toString() === req.payload.id.toString()) {
-            req.article.comments.remove(req.comment._id)
-            await req.article.save()
-            await req.comment.remove()
-            res.sendStatus(204)
-        } else
-            res.sendStatus(403)
-    }
-    catch (err) {
-        next(err)
-    }
-})
-
-router.post('/:article/comments/:comment/like', async function (req, res, next) {
-    try {
-        const article = req.article
-        const comment = req.comment
-        if (comment.article._id.toString() === article._id.toString()) {
-            if (comment.likes.indexOf(req.user._id) === -1) {
-                comment.likes.push(req.user)
-                await comment.save()
-            }
-            return res.sendStatus(204)
-        }
-        else
-            return res.sendStatus(404)
-    }
-    catch (err) {
-        next(err)
-    }
-})
-
-router.delete('/:article/comments/:comment/like', async function (req, res, next) {
-    try {
-        const article = req.article
-        const comment = req.comment
-        if (comment.article._id.toString() === article._id.toString())
-            if (comment.likes.indexOf(req.user._id) > -1) {
-                comment.likes.remove(req.user)
-                await comment.save()
-                return res.sendStatus(204)
-            }
-        return res.sendStatus(404)
-    }
-    catch (err) {
-        next(err)
-    }
-})
 
 module.exports = router 
