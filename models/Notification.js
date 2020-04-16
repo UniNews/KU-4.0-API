@@ -51,7 +51,7 @@ NotificationSchema.post('save', async function (doc) {
                     sound: 'default',
                     title: notification.title,
                     body: notification.body,
-                    data: { redirectId: doc.redirectId },
+                    // data: { redirectId: doc.redirectId },
                     _displayInForeground: true,
                 })
         }
