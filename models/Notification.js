@@ -45,15 +45,17 @@ NotificationSchema.post('save', async function (doc) {
         for (const follower of notification.receivers) {
             // follower.notifications.push(doc)
             // follower.save()
-            if (Expo.isExpoPushToken(follower.tokenNotification))
-                notifications.push({
-                    to: follower.tokenNotification,
-                    sound: 'default',
-                    title: notification.title,
-                    body: notification.body,
-                    // data: { redirectId: doc.redirectId },
-                    _displayInForeground: true,
-                })
+            for (const tokenNotification of follower.tokenNotifications) {
+                if (Expo.isExpoPushToken(tokenNotification))
+                    notifications.push({
+                        to: tokenNotification,
+                        sound: 'default',
+                        title: notification.title,
+                        body: notification.body,
+                        // data: { redirectId: doc.redirectId },
+                        _displayInForeground: true,
+                    })
+            }
         }
         sendPushNotifications(notifications)
     }

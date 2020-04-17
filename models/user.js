@@ -57,18 +57,6 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    // likes: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Article'
-    // }],
-    // views: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Article'
-    // }],
-    // articles: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Article'
-    // }],
     /* additional fields for stores or admins */
     email: {
         type: String,
@@ -90,13 +78,9 @@ const UserSchema = new mongoose.Schema({
     contacts: {
         type: String,
     },
-    // notifications: [{
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: 'Notification'
-    // }],
-    tokenNotification: {
+    tokenNotifications: [{
         type: String
-    },
+    }],
 }, { timestamps: true })
 
 UserSchema.plugin(uniqueValidator, { message: 'user is already taken.' })
@@ -139,24 +123,6 @@ UserSchema.methods.unfollow = async function (user) {
         return await this.save()
     }
 }
-
-// UserSchema.methods.like = async function (article) {
-//     if (this.likes.indexOf(article._id) === -1) {
-//         this.likes.push(article)
-//         article.likes.push(this)
-//         await article.save()
-//         return await this.save()
-//     }
-// }
-
-// UserSchema.methods.unlike = async function (article) {
-//     if (this.likes.indexOf(article._id) > -1) {
-//         this.likes.remove(article)
-//         article.likes.remove(this)
-//         await article.save()
-//         return await this.save()
-//     }
-// }
 
 UserSchema.methods.toJSONFor = function (user) {
     return {
