@@ -35,7 +35,6 @@ router.post('/signin/facebook', function (req, res, next) {
             return next(err)
         if (user) {
             return res.json({
-                username: user.username,
                 accessToken: user.generateJWT()
             })
         } else {
@@ -48,12 +47,11 @@ router.post('/signin/google', function (req, res, next) {
     const access_token = req.body.access_token
     if (!access_token)
         return res.status(422).json({ errors: `access_token can't be blank` })
-    passport.authenticate('facebook-token', { session: false }, function (err, user, info) {
+    passport.authenticate('google-token', { session: false }, function (err, user, info) {
         if (err)
             return next(err)
         if (user) {
             return res.json({
-                username: user.username,
                 accessToken: user.generateJWT()
             })
         } else {
@@ -74,6 +72,9 @@ router.post('/signup', [
         const username = req.body.username
         const password = req.body.password
         const displayName = req.body.displayName
+        const existingUser = await User.findOne({ username: username })
+        if (existingUser)
+            return res.status(409).json({ error: 'duplicate username' })
         const user = new User({
             username: username,
             loginType: 'normal',

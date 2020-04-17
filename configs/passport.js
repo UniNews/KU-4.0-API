@@ -52,12 +52,12 @@ passport.use(new GoogleTokenStrategy({
         if (user)
             done(null, user)
         // the user hasn't already been registered
-        const { id, name, profile_pic } = profile
+        const { id, displayName } = profile
         const createdUser = await User.create({
             uid: id,
-            displayName: name,
+            displayName,
             loginType: 'google',
-            avatarURL: profile_pic
+            avatarURL: profile._json.picture
         })
         return done(null, createdUser)
     } catch (err) {

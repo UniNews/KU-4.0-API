@@ -9,7 +9,6 @@ const UserSchema = new mongoose.Schema({
     username: {
         type: String,
         lowercase: true,
-        unique: true,
         match: [/^[a-zA-Z0-9]+$/, 'username is invalid'],
     },
     loginType: {
