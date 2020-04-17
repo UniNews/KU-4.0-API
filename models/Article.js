@@ -77,7 +77,7 @@ ArticleSchema.methods.toJSONFor = function (user) {
         articleType: this.articleType,
         newsType: this.newsType,
         imageURL: this.imageURL,
-        author: this.author.toJSONFor(user),
+        author: this.author ? this.author.toJSONFor(user) : null,
         views: this.views,
         comments: this.comments,
         tags: this.tags,
