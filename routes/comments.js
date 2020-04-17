@@ -46,7 +46,12 @@ router.get('/:comment', async function (req, res, next) {
 router.delete('/:comment', async function (req, res, next) {
     try {
         if (req.user.role === 'admin' || req.comment.author._id.toString() === req.payload.id.toString()) {
-            await req.comment.remove()
+            const comment = await req.comment.populate('article').execPopulate()
+            if (comment.article.comments.indexOf(comment._id) > -1) {
+                comment.article.comments.remove(comment._id)
+                await comment.article.save()
+            }
+            await comment.remove()
             res.sendStatus(204)
         } else
             res.sendStatus(403)
