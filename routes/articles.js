@@ -268,6 +268,13 @@ router.get('/recommendations', async function (req, res, next) {
 
         return res.json([
             {
+                type: 'ads',
+                articles: adsArticles.map(function (article) {
+                    return article.toJSONFor(req.user)
+                }),
+                articlesCount: adsArticles.length
+            },
+            {
                 type: 'feed',
                 articles: followingUserArticles.map(function (article) {
                     return article.toJSONFor(req.user)
@@ -288,13 +295,6 @@ router.get('/recommendations', async function (req, res, next) {
                     return article.toJSONFor(req.user)
                 }),
                 articlesCount: popularArticles.length
-            },
-            {
-                type: 'ads',
-                articles: adsArticles.map(function (article) {
-                    return article.toJSONFor(req.user)
-                }),
-                articlesCount: adsArticles.length
             },
         ])
     }
