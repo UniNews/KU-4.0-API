@@ -18,8 +18,6 @@ require('./models/Comment')
 require('./models/Report')
 app.use(require('./routes'))
 
-// require('./seeds/articles')
-
 app.use(function (err, req, res, next) {
     res.status(err.status || 500)
     res.json({
