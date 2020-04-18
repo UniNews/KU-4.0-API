@@ -239,20 +239,27 @@ router.get('/news/lost-found', newsFilter, async function (req, res, next) {
 
 router.get('/recommendations', async function (req, res, next) {
     try {
-        const tags = await Article.aggregate([{ $match: { likes: { $in: [req.user._id] } } }, { $unwind: '$tags' }, { $sortByCount: '$tags' }, { $limit: 2 }])
+        const tags = await Article.aggregate([{ $match: { views: { $in: [req.user._id] } } }, { $unwind: '$tags' }, { $sortByCount: '$tags' }, { $limit: 2 }])
         const preferenceTags = tags.map(function (tag) {
             return tag._id
         })
         const results = await Promise.all([
             Article.find({ tags: { $in: preferenceTags } })
+                .limit(Number(5))
                 .sort({ likes: -1 })
                 .populate('author'),
-            Article.find({ author: { $in: user.followings } })
+            Article.find({ author: { $in: req.user.followings } })
+                .limit(Number(5))
                 .sort({ createdAt: 'desc' })
-                .populate('author')
+                .populate('author'),
+            Article.find()
+                .limit(Number(5))
+                .sort({ likes: -1 })
+                .populate('author'),
         ])
         const tagArticles = results[0]
         const followingUserArticles = results[1]
+        const popularArticles = results[2]
         return res.json([
             {
                 type: 'feed',
@@ -268,6 +275,13 @@ router.get('/recommendations', async function (req, res, next) {
                     return article.toJSONFor(req.user)
                 }),
                 articlesCount: tagArticles.length
+            },
+            {
+                type: 'popular',
+                articles: popularArticles.map(function (article) {
+                    return article.toJSONFor(req.user)
+                }),
+                articlesCount: popularArticles.length
             },
         ])
     }
@@ -290,10 +304,8 @@ router.get('/:article', async function (req, res, next) {
     }
 })
 
-router.get('/:article/views', userFilter, async function (req, res, next) {
+router.get('/:article/views', async function (req, res, next) {
     try {
-        const limit = req.limit
-        const offset = req.offset
         const articles = await req.article.populate({
             path: 'views',
             options: {
@@ -302,14 +314,12 @@ router.get('/:article/views', userFilter, async function (req, res, next) {
                 }
             }
         }).execPopulate()
-        const views = articles.views.slice(Number(offset)).slice(0, Number(limit))
-        const viewsCount = articles.views.length
-        return res.status(200).json({
-            views: views.map(function (view) {
+        const views = articles.views
+        return res.status(200).json(
+            views.map(function (view) {
                 return view.toJSONFor(req.user)
             }),
-            viewsCount
-        })
+        )
     }
     catch (err) {
         next(err)

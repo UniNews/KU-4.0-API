@@ -18,7 +18,6 @@ require('./models/Comment')
 require('./models/Report')
 app.use(require('./routes'))
 
-// require('./seeds/users')
 // require('./seeds/articles')
 
 app.use(function (err, req, res, next) {
