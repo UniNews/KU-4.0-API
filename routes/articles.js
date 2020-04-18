@@ -256,10 +256,16 @@ router.get('/recommendations', async function (req, res, next) {
                 .limit(Number(5))
                 .sort({ likes: -1 })
                 .populate('author'),
+            Article.find({ articleType: 'news' })
+                .limit(Number(5))
+                .sort({ likes: -1 })
+                .populate('author'),
         ])
         const tagArticles = results[0]
         const followingUserArticles = results[1]
         const popularArticles = results[2]
+        const adsArticles = results[3]
+
         return res.json([
             {
                 type: 'feed',
@@ -282,6 +288,13 @@ router.get('/recommendations', async function (req, res, next) {
                     return article.toJSONFor(req.user)
                 }),
                 articlesCount: popularArticles.length
+            },
+            {
+                type: 'ads',
+                articles: adsArticles.map(function (article) {
+                    return article.toJSONFor(req.user)
+                }),
+                articlesCount: adsArticles.length
             },
         ])
     }
