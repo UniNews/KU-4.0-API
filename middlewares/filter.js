@@ -6,8 +6,9 @@ const newsFilter = async function (req, res, next) {
     req.limit = req.query.limit || 0
     req.offset = req.query.offset || 0
     const query = {}
-    if (req.query.tag)
-        query.tags = { '$in': [req.query.tag] }
+    if (req.query.tags) {
+        query.tags = { $in: req.query.tags }
+    }
     if (req.query.author) {
         const author = await User.findOne({ displayName: req.query.author })
         query.author = author ? author._id : null

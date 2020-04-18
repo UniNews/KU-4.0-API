@@ -41,7 +41,11 @@ const ArticleSchema = new mongoose.Schema({
     likes: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User',
-    }]
+    }],
+    ads: {
+        type: Boolean,
+        default: false,
+    }
 }, { timestamps: true })
 
 ArticleSchema.pre('save', function (next) {

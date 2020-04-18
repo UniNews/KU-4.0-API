@@ -65,6 +65,55 @@ router.get('/', newsFilter, async function (req, res, next) {
     }
 })
 
+router.get('/ads', newsFilter, async function (req, res, next) {
+    try {
+        const query = req.query
+        const limit = req.limit
+        const offset = req.offset
+        query.articleType = 'news'
+        query.ads = true
+        const articles = await Article.find(query)
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ createdAt: 'desc' })
+            .populate('author')
+        const articlesCount = await Article.count(query)
+        return res.json({
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
+            articlesCount: articlesCount
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+router.get('/news/trending', newsFilter, async function (req, res, next) {
+    try {
+        const query = req.query
+        const limit = req.limit
+        const offset = req.offset
+        query.articleType = 'news'
+        const articles = await Article.find(query)
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ likes: -1 })
+            .populate('author')
+        const articlesCount = await Article.count(query)
+        return res.json({
+            articles: articles.map(function (article) {
+                return article.toJSONFor(req.user)
+            }),
+            articlesCount: articlesCount
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
 router.get('/communities', newsFilter, async function (req, res, next) {
     try {
         const query = req.query
