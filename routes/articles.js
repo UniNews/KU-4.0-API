@@ -244,15 +244,15 @@ router.get('/recommendations', async function (req, res, next) {
             return tag._id
         })
         const results = await Promise.all([
-            Article.find({ tags: { $in: preferenceTags } })
+            Article.find({ articleType: 'news', tags: { $in: preferenceTags } })
                 .limit(Number(5))
                 .sort({ likes: -1 })
                 .populate('author'),
-            Article.find({ author: { $in: req.user.followings } })
+            Article.find({ articleType: 'news' })
                 .limit(Number(5))
                 .sort({ createdAt: 'desc' })
                 .populate('author'),
-            Article.find()
+            Article.find({ articleType: 'news' })
                 .limit(Number(5))
                 .sort({ likes: -1 })
                 .populate('author'),
