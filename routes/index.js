@@ -11,6 +11,7 @@ router.use('/reports', auth.required, require('./report'))
 router.use('/comments', auth.required, require('./comments'))
 router.use('/images', require('./images'))
 // router.use('/seeds', auth.required, require('./seeds'))
+// router.use('/seeds', require('./seeds'))
 
 router.use(function (err, req, res, next) {
     if (err instanceof mongoose.Error.CastError)
