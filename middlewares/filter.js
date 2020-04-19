@@ -15,6 +15,8 @@ const newsFilter = async function (req, res, next) {
     }
     if (req.query.description)
         query.description = { $regex: req.query.description, $options: 'i' }
+    if (req.query.title)
+        query.title = { $regex: req.query.title, $options: 'i' }
     req.query = query
     next()
 }

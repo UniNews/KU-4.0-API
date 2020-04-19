@@ -305,9 +305,9 @@ router.get('/recommendations', async function (req, res, next) {
                 .limit(Number(5))
                 .sort({ likes: -1 })
                 .populate('author'),
-            Article.find({ articleType: 'news' })
+            Article.find({ articleType: 'news', ads: true })
                 .limit(Number(5))
-                .sort({ likes: -1 })
+                .sort({ createdAt: 'desc' })
                 .populate('author'),
         ])
         const tagArticles = results[0]
@@ -321,14 +321,12 @@ router.get('/recommendations', async function (req, res, next) {
                 articles: adsArticles.map(function (article) {
                     return article.toJSONFor(req.user)
                 }),
-                articlesCount: adsArticles.length
             },
             {
                 type: 'feed',
                 articles: followingUserArticles.map(function (article) {
                     return article.toJSONFor(req.user)
                 }),
-                articlesCount: followingUserArticles.length
             },
             {
                 type: 'tags',
@@ -336,14 +334,12 @@ router.get('/recommendations', async function (req, res, next) {
                 articles: tagArticles.map(function (article) {
                     return article.toJSONFor(req.user)
                 }),
-                articlesCount: tagArticles.length
             },
             {
                 type: 'popular',
                 articles: popularArticles.map(function (article) {
                     return article.toJSONFor(req.user)
                 }),
-                articlesCount: popularArticles.length
             },
         ])
     }
