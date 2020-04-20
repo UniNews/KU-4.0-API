@@ -323,15 +323,15 @@ router.get('/recommendations', async function (req, res, next) {
                 }),
             },
             {
-                type: 'feed',
-                articles: followingUserArticles.map(function (article) {
+                type: 'tags',
+                tags: preferenceTags,
+                articles: tagArticles.map(function (article) {
                     return article.toJSONFor(req.user)
                 }),
             },
             {
-                type: 'tags',
-                tags: preferenceTags,
-                articles: tagArticles.map(function (article) {
+                type: 'feed',
+                articles: followingUserArticles.map(function (article) {
                     return article.toJSONFor(req.user)
                 }),
             },
