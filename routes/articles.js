@@ -543,7 +543,7 @@ router.get('/:article/comments', async function (req, res, next) {
             populate: {
                 path: 'author'
             }
-        }]).sort({ createdAt: 'desc' })
+        }]).sort({ createdAt: 'asc' })
         if (!comments)
             return res.sendStatus(404)
         return res.json(comments.map(function (comment) {
