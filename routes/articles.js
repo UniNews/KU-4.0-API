@@ -384,6 +384,28 @@ router.get('/:article/views', async function (req, res, next) {
     }
 })
 
+router.get('/:article/likes', async function (req, res, next) {
+    try {
+        const articles = await req.article.populate({
+            path: 'likes',
+            options: {
+                sort: {
+                    createdAt: 'desc'
+                }
+            }
+        }).execPopulate()
+        const likes = articles.likes
+        return res.status(200).json(
+            likes.map(function (like) {
+                return like.toJSONFor(req.user)
+            }),
+        )
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
 router.put('/:article', async function (req, res, next) {
     try {
         if (req.user.role === 'admin' || req.article.author._id.toString() === user._id.toString()) {
