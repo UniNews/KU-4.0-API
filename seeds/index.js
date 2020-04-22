@@ -14,17 +14,17 @@ const yujinshabu = require('./store/yujinshabu')
 const admin = require('./user/admin')
 
 const insertMany = async () => {
-    // await kuacoustic(),
-    //     await kuchorus(),
-    //     await kudanceclub(),
-    //     await kumashabu(),
-    //     await kuphotoclub(),
-    //     await kupotentialclub(),
-    //     await kuvolunteergroup(),
-    //     await nskkasetsart(),
-    //     await samsteak(),
-    //     await speakerku(),
-    //     await yujinshabu()
+    await kuacoustic()
+    await kuchorus()
+    await kudanceclub()
+    await kumashabu()
+    await kuphotoclub()
+    await kupotentialclub()
+    await kuvolunteergroup()
+    await nskkasetsart()
+    await samsteak()
+    await speakerku()
+    await yujinshabu()
     await admin()
 }
 

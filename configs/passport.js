@@ -28,7 +28,7 @@ passport.use(new FacebookTokenStrategy({
     try {
         const user = await User.findOne({ 'uid': profile.id })
         if (user)
-            done(null, user)
+            return done(null, user)
         // the user hasn't already been registered
         const { id, displayName, photos } = profile
         const createdUser = await User.create({
@@ -50,7 +50,7 @@ passport.use(new GoogleTokenStrategy({
     try {
         const user = await User.findOne({ 'uid': profile.id })
         if (user)
-            done(null, user)
+            return done(null, user)
         // the user hasn't already been registered
         const { id, displayName } = profile
         const createdUser = await User.create({
