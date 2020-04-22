@@ -10,7 +10,7 @@ const NotificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['article', 'follower'],
+        enum: ['news', 'community', 'follower', 'comment'],
     },
     redirectId: {
         type: String,
@@ -43,9 +43,8 @@ NotificationSchema.post('save', async function (doc) {
         let notifications = []
         const notification = await doc.populate('receivers').execPopulate()
         for (const follower of notification.receivers) {
-            // follower.notifications.push(doc)
-            // follower.save()
             for (const tokenNotification of follower.tokenNotifications) {
+                console.log(tokenNotification)
                 if (Expo.isExpoPushToken(tokenNotification))
                     notifications.push({
                         to: tokenNotification,

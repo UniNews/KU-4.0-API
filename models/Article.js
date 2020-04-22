@@ -56,10 +56,10 @@ ArticleSchema.pre('save', function (next) {
 ArticleSchema.post('save', function (article) {
     if (article._wasNew) {
         const sender = article.author
-        const type = 'article'
+        const type = article.articleType
         const receivers = article.author.followers
-        const title = article.title
-        const body = article.description
+        const title = `${article.author.displayName} ได้โพสต์สิ่งใหม่!`
+        const body = article.title || article.description
         const redirectId = article._id
         const notification = new Notification({
             sender,

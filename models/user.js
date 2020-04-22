@@ -4,6 +4,7 @@ const SALT_WORK_FACTOR = 10
 const uniqueValidator = require('mongoose-unique-validator')
 const jwt = require('jsonwebtoken')
 const { ACCESS_TOKEN_SECRET } = require('../configs/environments')
+const Notification = mongoose.model('Notification')
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -110,7 +111,23 @@ UserSchema.methods.follow = async function (user) {
         this.followings.push(user)
         user.followers.push(this)
         await user.save()
-        return await this.save()
+        await this.save()
+        // create follower notification
+        const sender = this
+        const type = 'follower'
+        const receivers = [user._id]
+        const title = 'คุณมีผู้ติดตามใหม่!'
+        const body = `${this.displayName} ได้ติดตามคุณ`
+        const redirectId = this._id
+        const notification = new Notification({
+            sender,
+            type,
+            receivers,
+            title,
+            body,
+            redirectId
+        })
+        await notification.save()
     }
 }
 
@@ -119,7 +136,7 @@ UserSchema.methods.unfollow = async function (user) {
         this.followings.remove(user)
         user.followers.remove(this)
         await user.save()
-        return await this.save()
+        await this.save()
     }
 }
 
