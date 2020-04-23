@@ -3,6 +3,7 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const User = mongoose.model('User')
 const { body, validationResult } = require('express-validator')
+const { MAX_BIO, MAX_DISPLAYNAME_LENGTH, MIN_DISPLAYNAME_LENGTH } = require('./../configs/validationConstants')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -55,9 +56,9 @@ router.get('/', async function (req, res, next) {
 
 router.put('/',
     [
-        body('displayName').optional().isLength({ min: 3, max: 20 }).withMessage('displayName must be between 3 and 20 chars long.'),
+        body('displayName').optional().isLength({ min: MIN_DISPLAYNAME_LENGTH, max: MAX_DISPLAYNAME_LENGTH }).withMessage('displayName must be between 3 and 20 chars long.'),
         body('avatarURL').optional().isURL().withMessage('avatarURL must be an URL.'),
-        body('bio').optional(),
+        body('bio').optional().isLength({ max: MAX_BIO }),
         body('email').optional().isEmail().withMessage('invalid email.'),
         body('firstName').optional(),
         body('lastName').optional(),
@@ -75,9 +76,12 @@ router.put('/',
             const displayName = req.body.displayName
             const avatarURL = req.body.avatarURL
             const bio = req.body.bio
-            user.displayName = displayName || user.displayName
-            user.avatarURL = avatarURL || user.avatarURL
-            user.bio = bio || user.bio
+            if (typeof displayName !== 'undefined') // in case of empty strings
+                user.displayName = displayName
+            if (typeof avatarURL !== 'undefined')
+                user.avatarURL = avatarURL
+            if (typeof bio !== 'undefined')
+                user.bio = bio
             // if the role is store or admin, update additional fields...
             if (user.role != 'user') {
                 const email = req.body.email
@@ -86,12 +90,18 @@ router.put('/',
                 const mobilePhone = req.body.mobilePhone
                 const tags = req.body.tags
                 const contacts = req.body.contacts
-                user.email = email || user.email
-                user.firstName = firstName || user.firstName
-                user.lastName = lastName || user.lastName
-                user.mobilePhone = mobilePhone || user.mobilePhone
-                user.tags = tags || user.tags
-                user.contacts = contacts || user.contacts
+                if (typeof email !== 'undefined')
+                    user.email = email
+                if (typeof firstName !== 'undefined')
+                    user.firstName = firstName
+                if (typeof lastName !== 'undefined')
+                    user.lastName = lastName
+                if (typeof mobilePhone !== 'undefined')
+                    user.mobilePhone = mobilePhone
+                if (typeof tags !== 'undefined')
+                    user.tags = tags
+                if (typeof contacts !== 'undefined')
+                    user.contacts = contacts
             }
             await user.save()
             return res.json(user)

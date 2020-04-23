@@ -4,10 +4,18 @@ const mongoose = require('mongoose')
 const User = mongoose.model('User')
 const passport = require('passport')
 const { body, validationResult } = require('express-validator')
+const {
+    MAX_USERNAME_LENGTH,
+    MIN_USERNAME_LENGTH,
+    MIN_PASSWORD_LENGTH,
+    MAX_PASSWORD_LENGTH,
+    MIN_DISPLAYNAME_LENGTH,
+    MAX_DISPLAYNAME_LENGTH
+} = require('./../configs/validationConstants')
 
 router.post('/signin', [
-    body('username').isLength({ min: 5, max: 12 }).withMessage('username must be between 5 and 12 chars long.'),
-    body('password').isLength({ min: 5, max: 12 }).withMessage('password must be between 5 and 12 chars long.'),
+    body('username').isLength({ min: MIN_USERNAME_LENGTH, max: MAX_USERNAME_LENGTH }).withMessage('username must be between 5 and 12 chars long.'),
+    body('password').isLength({ min: MIN_PASSWORD_LENGTH, max: MAX_PASSWORD_LENGTH }).withMessage('password must be between 5 and 12 chars long.'),
 ], function (req, res, next) {
     const errors = validationResult(req)
     if (!errors.isEmpty())
@@ -61,9 +69,9 @@ router.post('/signin/google', function (req, res, next) {
 })
 
 router.post('/signup', [
-    body('username').isLength({ min: 5, max: 12 }).withMessage('username must be between 5 and 12 chars long.'),
-    body('password').isLength({ min: 5, max: 12 }).withMessage('password must be between 5 and 12 chars long.'),
-    body('displayName').isLength({ min: 3, max: 20 }).withMessage('displayName must be between 3 and 20 chars long.'),
+    body('username').isLength({ min: MIN_USERNAME_LENGTH, max: MAX_USERNAME_LENGTH }).withMessage('username must be between 5 and 12 chars long.'),
+    body('password').isLength({ min: MIN_PASSWORD_LENGTH, max: MAX_PASSWORD_LENGTH }).withMessage('password must be between 5 and 12 chars long.'),
+    body('displayName').isLength({ min: MIN_DISPLAYNAME_LENGTH, max: MAX_DISPLAYNAME_LENGTH }).withMessage('displayName must be between 3 and 20 chars long.'),
 ], async function (req, res, next) {
     try {
         const errors = validationResult(req)

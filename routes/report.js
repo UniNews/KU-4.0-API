@@ -6,6 +6,7 @@ const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
 const { validationResult, body } = require('express-validator')
+const { MIN_REPORT_LENGTH, MAX_REPORT_LENGTH } = require('./../configs/validationConstants')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -47,7 +48,7 @@ router.get('/', async function (req, res, next) {
 })
 
 router.post('/', [
-    body('description').isLength({ min: 1, max: 1000 }).withMessage('description must be between 1 and 1000 chars long.'),
+    body('description').isLength({ min: MIN_REPORT_LENGTH, max: MAX_REPORT_LENGTH }).withMessage('description must be between 1 and 1000 chars long.'),
     body('type').isIn(['article', 'comment']).withMessage('type must be article or comment.'),
     body('destinationId').matches(/^[0-9a-fA-F]{24}$/)
 ], async function (req, res, next) {

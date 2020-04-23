@@ -4,7 +4,8 @@ const router = require('express').Router()
 const Article = mongoose.model('Article')
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
-const { newsFilter, userFilter } = require('../middlewares/filter')
+const { newsFilter } = require('../middlewares/filter')
+const { MAX_DESCRIPTION_LENGTH, MIN_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH, MIN_TITLE_LENGTH, MAX_COMMENT_LENGTH, MIN_COMMENT_LENGTH } = require('./../configs/validationConstants')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -406,35 +407,45 @@ router.get('/:article/likes', async function (req, res, next) {
     }
 })
 
-router.put('/:article', async function (req, res, next) {
-    try {
-        if (req.user.role === 'admin' || req.article.author._id.toString() === user._id.toString()) {
-            // only update fields that were actually passed
-            const description = req.body.description
-            const tags = req.body.tags
-            if (description)
-                req.article.description = description
-            if (tags)
-                req.article.tags = tags
-            if (req.article.articleType === 'news') {
-                // if the article type is news, update additional fields...
-                const title = req.body.title
-                const imageURL = req.body.imageURL
-                if (title)
-                    req.article.title = title
-                if (imageURL)
-                    req.article.imageURL = imageURL
+router.put('/:article',
+    [
+        body('description').optional().isLength({ min: MIN_DESCRIPTION_LENGTH, max: MAX_DESCRIPTION_LENGTH }).withMessage('description must be between 1 and 1000 chars long.'),
+        body('tags').optional().isArray().withMessage('tags must be an array.'),
+        body('title').optional().isLength({ min: MIN_TITLE_LENGTH, max: MAX_TITLE_LENGTH }).withMessage('title must be between 1 and 100 chars long.'),
+        body('newsType').optional().isIn(['club', 'promotion', 'lost-found', 'university']).withMessage('newsType must be club, promotion, lost-found or university.'),
+        body('imageURL').optional().isURL().withMessage('imageURL must be an URL.')
+    ], async function (req, res, next) {
+        try {
+            if (req.user.role === 'admin' || req.article.author._id.toString() === user._id.toString()) {
+                // only update fields that were actually passed
+                const description = req.body.description
+                const tags = req.body.tags
+                if (typeof description !== 'undefined')
+                    req.article.description = description
+                if (typeof tags !== 'undefined')
+                    req.article.tags = tags
+                if (req.article.articleType === 'news') {
+                    // if the article type is news, update additional fields...
+                    const title = req.body.title
+                    const imageURL = req.body.imageURL
+                    const newsType = req.body.newsType
+                    if (typeof newsType !== 'undefined')
+                        req.article.newsType = newsType
+                    if (typeof title !== 'undefined')
+                        req.article.title = title
+                    if (typeof imageURL !== 'undefined')
+                        req.article.imageURL = imageURL
+                }
+                const updatedArticle = await req.article.save()
+                return res.json(updatedArticle.toJSONFor(req.user))
             }
-            const updatedArticle = await req.article.save()
-            return res.json(updatedArticle.toJSONFor(req.user))
+            else
+                return res.sendStatus(403)
         }
-        else
-            return res.sendStatus(403)
-    }
-    catch (err) {
-        next(err)
-    }
-})
+        catch (err) {
+            next(err)
+        }
+    })
 
 router.delete('/:article', async function (req, res, next) {
     try {
@@ -451,13 +462,13 @@ router.delete('/:article', async function (req, res, next) {
 })
 
 router.post('/', [
-    body('description').isLength({ min: 1, max: 1000 }).withMessage('description must be between 1 and 1000 chars long.'),
+    body('description').isLength({ min: MIN_DESCRIPTION_LENGTH, max: MAX_DESCRIPTION_LENGTH }).withMessage('description must be between 1 and 1000 chars long.'),
     body('tags').optional().isArray().withMessage('tags must be an array.'),
     body('articleType').isIn(['community', 'news']).withMessage('articleType must be news or community.'),
     oneOf([
         [
             body('articleType').equals('news'),
-            body('title').isLength({ min: 1, max: 100 }).withMessage('title must be between 1 and 100 chars long.'),
+            body('title').isLength({ min: MIN_TITLE_LENGTH, max: MAX_TITLE_LENGTH }).withMessage('title must be between 1 and 100 chars long.'),
             body('newsType').isIn(['club', 'promotion', 'lost-found', 'university']).withMessage('newsType must be club, promotion, lost-found or university.'),
             body('imageURL').isURL().withMessage('imageURL must be an URL.')
         ],
@@ -556,7 +567,7 @@ router.get('/:article/comments', async function (req, res, next) {
 })
 
 router.post('/:article/comments',
-    body('description').isLength({ min: 1, max: 200 }).withMessage('description must be between 1 and 200 chars long.'),
+    body('description').isLength({ min: MIN_COMMENT_LENGTH, max: MAX_COMMENT_LENGTH }).withMessage('description must be between 1 and 200 chars long.'),
     async function (req, res, next) {
         try {
             const article = req.article
