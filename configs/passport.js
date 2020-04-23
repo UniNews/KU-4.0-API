@@ -33,7 +33,7 @@ passport.use(new FacebookTokenStrategy({
         const { id, displayName, photos } = profile
         const createdUser = await User.create({
             uid: id,
-            displayName: displayName.substring(0, 20).split(' '),
+            displayName: displayName.substring(0, 20).split(' ')[0],
             loginType: 'facebook',
             avatarURL: photos[0].value
         })
@@ -55,7 +55,7 @@ passport.use(new GoogleTokenStrategy({
         const { id, displayName } = profile
         const createdUser = await User.create({
             uid: id,
-            displayName: displayName.substring(0, 20).split(' '),
+            displayName: displayName.substring(0, 20).split(' ')[0],
             loginType: 'google',
             avatarURL: profile._json.picture
         })
