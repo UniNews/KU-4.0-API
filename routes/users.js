@@ -23,8 +23,8 @@ router.param('user', async function (req, res, next, id) {
 
 router.get('/', userFilter, async function (req, res, next) {
     try {
-        const user = await User.findById(req.payload.id)
-        if (!user)
+        const myUser = await User.findById(req.payload.id)
+        if (!myUser)
             return res.sendStatus(401)
         const query = req.query
         const limit = req.limit
@@ -36,7 +36,7 @@ router.get('/', userFilter, async function (req, res, next) {
         const usersCount = await User.count(query)
         return res.json({
             users: users.map(function (user) {
-                return user.toJSONFor(user)
+                return user.toJSONFor(myUser)
             }),
             usersCount: usersCount
         })
