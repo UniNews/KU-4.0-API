@@ -25,7 +25,7 @@ ReportSchema.methods.toJSONFor = function (user) {
     return {
         _id: this._id,
         description: this.description,
-        author: this.author.toJSONFor(user),
+        author: this.author ? this.author.toJSONFor(user) : null,
         postDestination: this.postDestination,
         type: this.type,
         createdAt: this.createdAt,
