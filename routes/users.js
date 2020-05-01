@@ -139,6 +139,8 @@ router.post('/:user/follow', async function (req, res, next) {
         const myUser = await User.findById(req.payload.id)
         if (!myUser)
             return res.sendStatus(401)
+        if (targetUser._id.equals(myUser._id))
+            return res.status(422).json({ error: 'one user cannot follow the user with same id.' })
         await myUser.follow(targetUser)
         return res.sendStatus(204)
     }
