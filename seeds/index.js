@@ -8,6 +8,7 @@ const kupotentialclub = require('./store/kupotentialclub')
 const nskkasetsart = require('./store/nskkasetsart')
 const speakerku = require('./store/speakerku')
 const yujinshabu = require('./store/yujinshabu')
+const kuadmission = require('./store/kuadmission')
 /* users */
 const admin = require('./user/admin')
 
@@ -22,6 +23,7 @@ const insertMany = async () => {
     await speakerku()
     await yujinshabu()
     await admin()
+    await kuadmission()
 }
 
 module.exports = insertMany

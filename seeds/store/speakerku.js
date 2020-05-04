@@ -8,7 +8,7 @@ let user = {
   password: '123456',
   displayName: 'ชมรมส่งเสริมศิลปะการพูด มหาวิทยาลัยเกษตรศาสตร์',
   role: 'store',
-  avatarURL: 'https://scontent.fbkk22-6.fna.fbcdn.net/v/t1.0-9/85173085_1222909267898624_7886222703269511168_n.jpg?_nc_cat=104&_nc_sid=8024bb&_nc_eui2=AeFjZOIds9O4nUtdSUCV87UXOnLNI1Gk18s6cs0jUaTXy42J30yIwlExDxsrqvzR8WH9Z3tVfJgNTQg61R-UNjzp&_nc_oc=AQlRHzu50VwvhcErIAFHIkJjoSMTJQXEUNet_p3TCKOfAYDhwvmUPcqW5fs47JesLeM&_nc_ht=scontent.fbkk22-6.fna&oh=d8c8a4f9167c4ec1a4cfa066e1db6292&oe=5ED3E75D',
+  avatarURL: 'https://scontent.fbkk22-4.fna.fbcdn.net/v/t31.0-8/22829861_1472624022791105_872139398843287739_o.jpg?_nc_cat=109&_nc_sid=85a577&_nc_eui2=AeHFM3md8X1Hw8wAApCShjZn-YTYScQO1Bb5hNhJxA7UFk68eunIdIg0UW9Lm6olk_0TwIxLwNqKXtsAAGIXGq2s&_nc_oc=AQmg0hhfIAwVmDRQ78Z8Du0FdDU3BJw7SMpGViI0yEZQKOCb67XIMqq3rTJv5mEwaF0&_nc_ht=scontent.fbkk22-4.fna&oh=fe8031e81cb5b092739bbd2eb3835eed&oe=5ED43C10',
   active: true,
   bio: `ชมรมส่งเสริมศิลปะการพูด มหาวิทยาลัยเกษตรศาสตร์`,
   email: 'speakerku@ku.th',
@@ -49,7 +49,7 @@ Instagram : https://www.instagram.com/tedxkasetsartu
     `,
     articleType: 'news',
     newsType: 'club',
-    imageURL: 'https://scontent.fbkk22-1.fna.fbcdn.net/v/t1.0-9/88034257_1235013520021532_1089737192743370752_o.jpg?_nc_cat=100&_nc_sid=8024bb&_nc_eui2=AeEJrYhQzwsiYUnM9uR6ZCsYixM0HrMDUqCLEzQeswNSoEGrJ63RiqxEVqPFTiVV_0mqBdAsgQ1p5nkEKy8fRmoG&_nc_oc=AQnrZCel5uzR3yQeNLxr9TmXZoeXdPOktjLAggvZeqGG32pNbr6twJ1LILKWHN8KANQ&_nc_ht=scontent.fbkk22-1.fna&oh=e38d1c7f8f310976221803ec063daf94&oe=5ED6E8D9',
+    imageURL: 'https://scontent.fbkk22-6.fna.fbcdn.net/v/t1.0-9/85173085_1222909267898624_7886222703269511168_n.jpg?_nc_cat=104&_nc_sid=8024bb&_nc_eui2=AeFjZOIds9O4nUtdSUCV87UXOnLNI1Gk18s6cs0jUaTXy42J30yIwlExDxsrqvzR8WH9Z3tVfJgNTQg61R-UNjzp&_nc_oc=AQlRHzu50VwvhcErIAFHIkJjoSMTJQXEUNet_p3TCKOfAYDhwvmUPcqW5fs47JesLeM&_nc_ht=scontent.fbkk22-6.fna&oh=d8c8a4f9167c4ec1a4cfa066e1db6292&oe=5ED3E75D',
     author: '5e9818e846871726ac3a79e5',
     tags: ['ทั่วไป']
   },
