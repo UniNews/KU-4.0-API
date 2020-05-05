@@ -416,7 +416,7 @@ router.put('/:article',
         body('imageURL').optional().isURL().withMessage('imageURL must be an URL.')
     ], async function (req, res, next) {
         try {
-            if (req.user.role === 'admin' || req.article.author._id.toString() === user._id.toString()) {
+            if (req.user.role === 'admin' || req.article.author._id.toString() === req.user._id.toString()) {
                 // only update fields that were actually passed
                 const description = req.body.description
                 const tags = req.body.tags
