@@ -220,7 +220,7 @@ router.put('/:user',
             const myUser = await User.findById(req.payload.id)
             if (!myUser)
                 return res.sendStatus(401)
-            if (myUser.role === 'admin') {
+            if (myUser.role === 'admin' || myUser._id.toString() === req.user._id.toString()) {
                 const errors = validationResult(req)
                 if (!errors.isEmpty())
                     return res.status(422).json({ errors: errors.array().map(error => error) })
