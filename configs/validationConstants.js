@@ -7,7 +7,7 @@ module.exports = {
     /* profile constants */
     MAX_DISPLAYNAME_LENGTH: 20,
     MIN_DISPLAYNAME_LENGTH: 3,
-    MAX_BIO_LENGTH: 10,
+    MAX_BIO_LENGTH: 50,
     /* article constants */
     MAX_DESCRIPTION_LENGTH: 1000,
     MIN_DESCRIPTION_LENGTH: 1,
