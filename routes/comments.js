@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 const router = require('express').Router()
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
+const { body, oneOf, validationResult } = require('express-validator')
+const { MAX_COMMENT_LENGTH, MIN_COMMENT_LENGTH } = require('./../configs/validationConstants')
 
 router.use(async function (req, res, next) {
     const user = await User.findById(req.payload.id)
@@ -42,6 +44,40 @@ router.get('/:comment', async function (req, res, next) {
         next(err)
     }
 })
+
+
+router.put('/:comment',
+    [
+        body('description').isLength({ min: MIN_COMMENT_LENGTH, max: MAX_COMMENT_LENGTH }).withMessage('description must be between 1 and 200 chars long.'),
+    ],
+    async function (req, res, next) {
+        try {
+            const errors = validationResult(req)
+            if (!errors.isEmpty())
+                return res.status(422).json({ errors: errors.array().map(error => error) })
+            if (req.user.role === 'admin' || req.comment.author._id.toString() === req.user._id.toString()) {
+                const description = req.body.description
+                if (typeof description !== 'undefined')
+                    req.comment.description = description
+                const updatedComment = await req.comment.save()
+                const comment = await updatedComment.populate([{
+                    path: 'author',
+                },
+                {
+                    path: 'article',
+                    populate: {
+                        path: 'author'
+                    }
+                }]).execPopulate()
+                return res.json(comment.toJSONFor(req.user))
+            }
+            else
+                return res.sendStatus(403)
+        }
+        catch (err) {
+            next(err)
+        }
+    })
 
 router.delete('/:comment', async function (req, res, next) {
     try {
