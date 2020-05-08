@@ -90,4 +90,26 @@ router.delete('/:comment/like', async function (req, res, next) {
     }
 })
 
+router.get('/:comment/likes', async function (req, res, next) {
+    try {
+        const comment = await req.comment.populate({
+            path: 'likes',
+            options: {
+                sort: {
+                    createdAt: 'desc'
+                }
+            }
+        }).execPopulate()
+        const likes = comment.likes
+        return res.status(200).json(
+            likes.map(function (like) {
+                return like.toJSONFor(req.user)
+            }),
+        )
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
 module.exports = router 
