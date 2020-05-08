@@ -60,19 +60,23 @@ router.post('/', [
         const description = req.body.description
         const destinationId = req.body.destinationId
         const author = req.user
-        let postDestination
-        if (type === 'comment')
-            postDestination = await Comment.findOne({ _id: destinationId })
-        else if (type === 'article')
-            postDestination = await Article.findOne({ _id: destinationId })
-        if (!postDestination)
-            return res.sendStatus(404)
-        const report = new Report({
+        let reportObject = {
             description,
             type,
             author,
-            postDestination,
-        })
+        }
+        if (type === 'comment')
+            reportObject.postDestination = await Comment.findOne({ _id: destinationId })
+        else if (type === 'article') {
+            const article = await Article.findOne({ _id: destinationId })
+            if (article) {
+                reportObject.postDestination = article
+                reportObject.articleType = article.articleType
+            }
+        }
+        if (!reportObject.postDestination)
+            return res.sendStatus(404)
+        const report = new Report(reportObject)
         const createdResponse = await report.save()
         return res.json(createdResponse.toJSONFor(req.user))
     }

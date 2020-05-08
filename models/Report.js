@@ -18,6 +18,11 @@ const ReportSchema = new mongoose.Schema({
         type: String,
         enum: ['article', 'comment'],
         required: true
+    },
+    articleType: {
+        type: String,
+        enum: ['news', 'community'],
+        required: true
     }
 }, { timestamps: true })
 
@@ -28,6 +33,7 @@ ReportSchema.methods.toJSONFor = function (user) {
         author: this.author ? this.author.toJSONFor(user) : null,
         postDestination: this.postDestination,
         type: this.type,
+        articleType: this.articleType,
         createdAt: this.createdAt,
     }
 }
