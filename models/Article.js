@@ -48,7 +48,10 @@ const ArticleSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     }
-}, { timestamps: true })
+}, {
+    timestamps: true,
+    versionKey: false
+})
 
 ArticleSchema.pre('save', function (next) {
     this._wasNew = this.isNew

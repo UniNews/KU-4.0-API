@@ -20,7 +20,10 @@ const CommentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Article'
     }
-}, { timestamps: true })
+}, {
+    timestamps: true,
+    versionKey: false
+})
 
 
 CommentSchema.post('remove', async function (doc) {

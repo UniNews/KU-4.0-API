@@ -31,7 +31,10 @@ const NotificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-}, { timestamps: true })
+}, {
+    timestamps: true,
+    versionKey: false
+})
 
 NotificationSchema.pre('save', function (next) {
     this._wasNew = this.isNew

@@ -27,7 +27,10 @@ const ReportSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     }
-}, { timestamps: true })
+}, {
+    timestamps: true,
+    versionKey: false
+})
 
 ReportSchema.methods.toJSONFor = function (user) {
     return {
