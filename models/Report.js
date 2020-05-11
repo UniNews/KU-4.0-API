@@ -38,6 +38,7 @@ ReportSchema.methods.toJSONFor = function (user) {
         type: this.type,
         articleType: this.articleType,
         createdAt: this.createdAt,
+        removed: this.removed,
     }
 }
 
