@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const router = require('express').Router()
 const Comment = mongoose.model('Comment')
 const User = mongoose.model('User')
-const { body, oneOf, validationResult } = require('express-validator')
+const { body, validationResult } = require('express-validator')
 const { MAX_COMMENT_LENGTH, MIN_COMMENT_LENGTH } = require('./../configs/validationConstants')
 
 router.use(async function (req, res, next) {

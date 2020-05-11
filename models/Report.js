@@ -22,6 +22,10 @@ const ReportSchema = new mongoose.Schema({
     articleType: {
         type: String,
         enum: ['news', 'community'],
+    },
+    removed: {
+        type: Boolean,
+        default: false,
     }
 }, { timestamps: true })
 

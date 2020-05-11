@@ -14,8 +14,8 @@ require('./models/Notification')
 require('./models/Article')
 require('./models/User')
 require('./configs/passport')
-require('./models/Comment')
 require('./models/Report')
+require('./models/Comment')
 app.use(require('./routes'))
 
 app.use(function (err, req, res, next) {

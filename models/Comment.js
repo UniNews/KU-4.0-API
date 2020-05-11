@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const Notification = mongoose.model('Notification')
+const Report = mongoose.model('Report')
 
 const CommentSchema = new mongoose.Schema({
     description: {
@@ -19,6 +21,18 @@ const CommentSchema = new mongoose.Schema({
         ref: 'Article'
     }
 }, { timestamps: true })
+
+
+CommentSchema.post('remove', async function (doc) {
+    await Notification.remove({ type: 'comment', redirectId: doc._id }).exec();
+    const reports = await Report.find({ type: 'comment', postDestination: doc._id })
+    if (reports) {
+        for (const report of reports) {
+            report.removed = true
+            await report.save()
+        }
+    }
+});
 
 CommentSchema.methods.toJSONFor = function (user) {
     return {
