@@ -10,12 +10,12 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
 
+require('./models/Report')
 require('./models/Notification')
+require('./models/Comment')
 require('./models/Article')
 require('./models/User')
 require('./configs/passport')
-require('./models/Report')
-require('./models/Comment')
 app.use(require('./routes'))
 
 app.use(function (err, req, res, next) {

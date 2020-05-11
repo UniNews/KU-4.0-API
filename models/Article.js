@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const Notification = mongoose.model('Notification')
+const Report = mongoose.model('Report')
+const Comment = mongoose.model('Comment')
 
 const ArticleSchema = new mongoose.Schema({
     title: {
@@ -72,6 +74,18 @@ ArticleSchema.post('save', function (article) {
         notification.save()
     }
 })
+
+ArticleSchema.post('remove', async function (doc) {
+    await Notification.remove({ redirectId: doc._id }).exec();
+    const reports = await Report.find({ postDestination: doc._id })
+    if (reports) {
+        for (const report of reports) {
+            report.removed = true
+            await report.save()
+        }
+    }
+    await Comment.remove({ article: doc._id }).exec();
+});
 
 ArticleSchema.methods.toJSONFor = function (user) {
     return {
