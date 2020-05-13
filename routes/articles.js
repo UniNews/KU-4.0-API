@@ -100,7 +100,7 @@ router.get('/news/trending', newsFilter, async function (req, res, next) {
         const articles = await Article.find(query)
             .limit(Number(limit))
             .skip(Number(offset))
-            .sort({ likes: -1 })
+            .sort({ likesCount: -1 })
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
@@ -148,7 +148,7 @@ router.get('/communities/trending', newsFilter, async function (req, res, next) 
         const articles = await Article.find(query)
             .limit(Number(limit))
             .skip(Number(offset))
-            .sort({ likes: -1 })
+            .sort({ likesCount: -1 })
             .populate('author')
         const articlesCount = await Article.count(query)
         return res.json({
@@ -296,7 +296,7 @@ router.get('/recommendations', async function (req, res, next) {
         const results = await Promise.all([
             Article.find({ articleType: 'news', tags: { $in: preferenceTags } })
                 .limit(Number(5))
-                .sort({ likes: -1 })
+                .sort({ likesCount: -1 })
                 .populate('author'),
             Article.find({ articleType: 'news' })
                 .limit(Number(5))
@@ -304,7 +304,7 @@ router.get('/recommendations', async function (req, res, next) {
                 .populate('author'),
             Article.find({ articleType: 'news' })
                 .limit(Number(5))
-                .sort({ likes: -1 })
+                .sort({ likesCount: -1 })
                 .populate('author'),
             Article.find({ articleType: 'news', ads: true })
                 .limit(Number(5))
@@ -522,6 +522,7 @@ router.post('/:article/like', async function (req, res, next) {
     try {
         if (req.article.likes.indexOf(req.user._id) === -1) {
             req.article.likes.push(req.user)
+            req.article.likesCount = req.article.likes.length
             await req.article.save()
         }
         return res.sendStatus(204)

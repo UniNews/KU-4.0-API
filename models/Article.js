@@ -44,6 +44,11 @@ const ArticleSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'User',
     }],
+    likesCount: {
+        type: Number,
+        default: 0,
+        required: true
+    },
     ads: {
         type: Boolean,
         default: false,
@@ -88,7 +93,7 @@ ArticleSchema.post('remove', async function (doc) {
         }
     }
     await Comment.remove({ article: doc._id }).exec();
-});
+})
 
 ArticleSchema.methods.toJSONFor = function (user) {
     return {
@@ -105,6 +110,7 @@ ArticleSchema.methods.toJSONFor = function (user) {
         likes: this.likes,
         isLiked: this.likes.indexOf(user._id) > -1,
         createdAt: this.createdAt,
+        likesCount: this.likesCount
     }
 }
 
