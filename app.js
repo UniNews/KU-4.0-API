@@ -1,17 +1,35 @@
-require('dotenv').config();
-
 const express = require('express')
 const app = express()
-const newsRouter = require('./routes/news')
+const bodyParser = require('body-parser')
+const { SERVER_PORT, MONGODB_URL } = require('./configs/environments')
+const cors = require('cors')
+const mongoose = require('mongoose')
 
-app.use(function (req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*")
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
-    if (req.header("Access-Control-Request-Headers"))
-        res.setHeader("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"))
-    res.setHeader("Access-Control-Expose-Headers", "Location")
-    next()
+mongoose.set('useUnifiedTopology', true);
+mongoose.set('useNewUrlParser', true);
+mongoose.connect(MONGODB_URL)
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(cors())
+
+require('./models/Report')
+require('./models/Notification')
+require('./models/Comment')
+require('./models/Article')
+require('./models/User')
+require('./configs/passport')
+app.use(require('./routes'))
+
+app.use(function (err, req, res, next) {
+    res.status(err.status || 500)
+    res.json({
+        'error': {
+            message: err.message,
+        }
+    })
 })
 
-app.use('/news', newsRouter)
-app.listen(process.env.PORT || 3000)
+var server = app.listen(SERVER_PORT || 3000, function () {
+    console.log('Listening on port ' + server.address().port)
+})
